@@ -1,4 +1,4 @@
 User-Agent: *
 Allow: /
 
-Sitemap: https://bukhorizainun.github.io/sf-samarinda-2045/sitemap.xml
+Sitemap: https://shellyefwinda.github.io/shelbot/sitemap.xml
