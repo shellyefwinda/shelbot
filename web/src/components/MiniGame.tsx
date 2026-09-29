@@ -457,7 +457,7 @@ export function MiniGame({ lang }: { lang: Lang }) {
             >
               {t(MG_UI.jawaban, lang)}
             </button>
-            {/* Link, bukan <a>: awalan situs (/sf-samarinda-2045) ikut ditambahkan. */}
+            {/* Link, bukan <a>: awalan situs (/shelbot) ikut ditambahkan. */}
             <Link href={`/${lang}/samarinda/`} className="btn btn-garis">
               {t(MG_UI.jelajah, lang)}
             </Link>

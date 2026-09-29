@@ -189,7 +189,7 @@ const MAX_HURUF = 1200; // satu pesan
 const MAX_NASKAH = 3000; // jawaban naskah yang dijadikan pijakan
 
 const ASAL_DIIZINKAN = [
-  "https://bukhorizainun.github.io",
+  "https://shellyefwinda.github.io",
   "http://localhost:3000",
 ];
 
