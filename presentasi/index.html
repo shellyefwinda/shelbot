@@ -1,0 +1,973 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Futures in Action · Presentasi</title>
+<meta name="description" content="Presentasi proyek situs Futures in Action, Samarinda 2045 Edition, beserta Shelbot.">
+<style>
+/* Tata letak: meja permainan di tepi Mahakam. Panggung 1600x900 diskalakan;
+   slide mengalir dari kanan ke kiri seperti arus, dan sungai di dasar
+   panggung adalah penanda kemajuan yang dilalui ketinting.
+   Satu tampilan (terang) dipilih sengaja; semua warna ditulis eksplisit. */
+@font-face{font-family:"Fraunces";src:url(fonts/fraunces.woff2) format("woff2");font-weight:100 900;font-display:swap}
+@font-face{font-family:"Inter";src:url(fonts/inter.woff2) format("woff2");font-weight:100 900;font-display:swap}
+:root{
+  --kertas:#f4f0e7; --kertas-2:#ebe5d8; --permukaan:#fbf9f4;
+  --tinta:#10201e; --redup:#45544f; --samar:#6b7873; --garis:rgba(16,32,30,.13);
+  --sungai:#0e4f52; --sungai-dalam:#0a3638; --aqua:#35c8ff;
+  --env:#16a06f; --society:#8b5cf6; --economy:#f0a92a; --future:#2f7fe0; --ember:#ffb45c; --clay:#b4613a; --ulin:#2b211b;
+  --display:"Fraunces","Iowan Old Style","Palatino Linotype",Georgia,serif;
+  --isi:"Inter","Segoe UI",system-ui,-apple-system,Roboto,Arial,sans-serif;
+  --mono:ui-monospace,"Cascadia Mono","SFMono-Regular",Consolas,monospace;
+  --alir:cubic-bezier(.22,1,.36,1);
+  /* token yang dipakai SVG maskot dari situs */
+  --fg:var(--tinta); --bg:var(--kertas); --bg-raised:var(--permukaan);
+  --color-env:var(--env); --color-society:var(--society); --color-economy:var(--economy); --color-future:var(--future);
+  --color-ember:var(--ember); --color-rose:#ff7ab8; --color-aqua:var(--aqua); --color-mint:#4ff0c0; --color-ulin:var(--ulin); --color-clay:var(--clay);
+  --ease-out-soft:cubic-bezier(.22,1,.36,1);
+  --bab:var(--env);
+  color-scheme:light;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;background:#d9d3c5;overflow:hidden}
+body{font-family:var(--isi);color:var(--tinta)}
+#vp{position:fixed;inset:0;display:flex;align-items:center;justify-content:center}
+#panggung{position:relative;width:1600px;height:900px;flex:none;overflow:hidden;transform-origin:center;background:var(--kertas);
+  box-shadow:0 30px 90px rgba(16,32,30,.25)}
+/* serat kertas: kisi diagonal tipis seperti alas papan permainan */
+#panggung::before{content:"";position:absolute;inset:0;pointer-events:none;opacity:.5;
+  background-image:repeating-linear-gradient(45deg,rgba(16,32,30,.035) 0 1px,transparent 1px 22px),repeating-linear-gradient(-45deg,rgba(16,32,30,.035) 0 1px,transparent 1px 22px)}
+
+.slide{position:absolute;inset:0 0 92px 0;padding:70px 96px 30px;opacity:0;visibility:hidden;z-index:2;
+  transform:translateX(70px);transition:opacity .7s var(--alir),transform .9s var(--alir),visibility 0s .9s}
+.slide.aktif{opacity:1;visibility:visible;transform:none;transition:opacity .7s var(--alir),transform .9s var(--alir),visibility 0s}
+.slide.lewat{transform:translateX(-70px)}
+.slide.bab-slide{inset:0;padding:0}
+/* isi slide biasa berdiri di tengah tinggi panggung, bukan menempel di atas */
+.slide:not(.bab-slide){display:flex;flex-direction:column;justify-content:center}
+
+/* tipografi */
+.alis{font:600 15px/1 var(--isi);letter-spacing:.2em;text-transform:uppercase;color:var(--bab);display:flex;align-items:center;gap:12px;margin-bottom:22px}
+.alis i{width:9px;height:9px;border-radius:2px;background:currentColor;transform:rotate(45deg)}
+h1,h2{font-family:var(--display);font-weight:600;letter-spacing:-.022em;text-wrap:balance;font-variation-settings:"opsz" 144}
+h1{font-size:84px;line-height:1.02}
+h2{font-size:54px;line-height:1.06;margin-bottom:26px;max-width:1220px}
+h3{font:650 24px/1.25 var(--isi);margin-bottom:8px;letter-spacing:-.005em}
+p,li{font-size:23px;line-height:1.5;color:var(--redup)}
+.lead{font-size:28px;line-height:1.45;color:var(--redup);max-width:1000px}
+b,strong{color:var(--tinta);font-weight:650}
+.kecil{font-size:18px}.mini{font-size:15px;color:var(--samar)}
+.mono{font-family:var(--mono)}
+.sumber{position:absolute;left:96px;bottom:22px;font:14px/1.4 var(--isi);color:var(--samar);max-width:1100px}
+
+/* fragmen: muncul satu per satu */
+.frag{opacity:.08;transform:translateY(10px);transition:opacity .5s var(--alir),transform .5s var(--alir)}
+.frag.on{opacity:1;transform:none}
+.cetak .frag{opacity:1;transform:none}
+
+/* bidang dan kartu, hanya untuk benda yang memang terpisah */
+.lembar{background:var(--permukaan);border:1px solid var(--garis);border-radius:18px;box-shadow:0 1px 0 rgba(255,255,255,.8) inset,0 18px 40px -26px rgba(16,32,30,.35)}
+.grid2{display:grid;grid-template-columns:1.1fr 1fr;gap:56px;align-items:center}
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:22px}
+.grid4{display:grid;grid-template-columns:repeat(4,1fr);gap:20px}
+
+/* sungai kemajuan */
+#sungai{position:absolute;left:0;right:0;bottom:0;height:92px;z-index:5;pointer-events:none}
+#sungai svg{width:100%;height:100%;display:block}
+#ketinting{transition:transform 1s var(--alir)}
+#nomor{position:absolute;right:30px;bottom:30px;z-index:6;font:600 15px var(--mono);color:#e6f3f1;letter-spacing:.05em}
+#judulbab{position:absolute;left:30px;bottom:30px;z-index:6;font:600 13px var(--isi);letter-spacing:.18em;text-transform:uppercase;color:#cfe7e3}
+
+/* bab */
+.bab-slide{background:var(--sungai);color:#eef6f4}
+.bab-slide::after{content:"";position:absolute;inset:0;pointer-events:none;
+  background:radial-gradient(900px 600px at 82% 30%,rgba(53,200,255,.14),transparent 70%)}
+.bab-isi{position:absolute;left:120px;top:210px;right:120px;z-index:2}
+.bab-no{font:600 20px var(--mono);color:var(--bab);letter-spacing:.12em;margin-bottom:26px;display:flex;align-items:center;gap:16px}
+.bab-no::after{content:"";height:2px;width:120px;background:var(--bab)}
+.bab-slide h2{font-size:104px;line-height:.98;color:#f6faf9;max-width:1100px}
+.bab-slide p{color:#bcd8d3;font-size:28px;max-width:900px;margin-top:30px}
+.ombak{position:absolute;left:0;right:0;bottom:92px;height:180px;z-index:1;opacity:.5}
+.ombak path{fill:none;stroke:#7fd3e6;stroke-width:1.6;stroke-dasharray:6 12;animation:arus 30s linear infinite}
+@keyframes arus{to{stroke-dashoffset:-600}}
+
+/* judul */
+.pembuka{display:grid;grid-template-columns:1.05fr .95fr;gap:30px;align-items:center;height:100%}
+.pembuka h1 em{font-style:normal;background:linear-gradient(90deg,var(--env),var(--future),var(--society),var(--economy));background-size:100% 4px;background-repeat:no-repeat;background-position:0 92%}
+.lockup{display:inline-flex;border:1px solid var(--tinta);border-radius:8px;overflow:hidden;font:700 14px var(--isi);letter-spacing:.16em;text-transform:uppercase;margin-bottom:36px}
+.lockup span{padding:9px 14px}.lockup span+span{background:var(--tinta);color:var(--kertas)}
+.maskot-besar svg{width:100%;height:auto;overflow:visible}
+.maskot-besar{animation:melayang 7s var(--alir) infinite alternate}
+@keyframes melayang{to{transform:translateY(-10px)}}
+
+/* angka */
+.angka{display:flex;flex-direction:column;gap:8px}
+.angka .n{font:600 112px/1 var(--display);letter-spacing:-.04em;font-variant-numeric:tabular-nums;font-variation-settings:"opsz" 144}
+.angka .l{font-size:19px;color:var(--redup)}
+.angka.c1 .n{color:var(--env)}.angka.c2 .n{color:var(--future)}.angka.c3 .n{color:var(--society)}.angka.c4 .n{color:var(--economy)}.angka.c5 .n{color:var(--sungai)}
+
+/* skala waktu fase */
+.fase-baris{display:grid;grid-template-columns:270px 1fr;align-items:center;gap:26px;height:56px;border-bottom:1px solid var(--garis)}
+.fase-baris .nm{font:600 20px var(--isi)}.fase-baris .nm span{font:500 14px var(--mono);color:var(--samar);margin-right:10px}
+.fase-rel{position:relative;height:100%}
+.fase-rel .rentang{position:absolute;top:16px;height:24px;border-radius:12px;background:var(--w);opacity:.95;transform-origin:left;
+  transform:scaleX(0);transition:transform .9s var(--alir)}
+.fase-rel .rentang::before{content:"";position:absolute;inset:0;border-radius:12px;background:linear-gradient(90deg,var(--w) 0 var(--padat),rgba(255,255,255,.45) var(--padat))}
+.aktif .fase-rel .rentang{transform:none}
+.fase-rel .waktu{position:absolute;top:18px;font:600 15px var(--mono);color:var(--tinta);white-space:nowrap}
+.sumbu{display:grid;grid-template-columns:270px 1fr;gap:26px;margin-top:10px}
+.sumbu .t{position:relative;height:20px}.sumbu .t span{position:absolute;transform:translateX(-50%);font:13px var(--mono);color:var(--samar)}
+
+/* masa depan */
+.md-pilih{display:grid;gap:12px}
+.md-pilih button{all:unset;cursor:pointer;display:flex;align-items:center;gap:16px;padding:15px 18px;border-radius:14px;border:1px solid var(--garis);background:var(--permukaan);transition:transform .2s var(--alir),border-color .2s,box-shadow .2s}
+.md-pilih button:hover{transform:translateX(4px)}
+.md-pilih button:active{transform:scale(.98)}
+.md-pilih button[aria-pressed="true"]{border-color:var(--w);box-shadow:0 0 0 4px color-mix(in oklab,var(--w) 20%,transparent)}
+.md-pilih b.h{width:36px;height:36px;border-radius:50%;display:grid;place-items:center;border:1.5px solid var(--w);color:var(--w);font:700 15px var(--mono);flex:none}
+.md-pilih button[aria-pressed="true"] b.h{background:var(--w);color:#fff}
+.md-pilih .nm{font:650 21px var(--isi);color:var(--tinta)}.md-pilih .lb{font-size:16px;color:var(--samar)}
+.md-cerita{margin-top:26px;min-height:120px}
+.md-cerita p{font-size:24px}
+
+/* indikator */
+.ind{display:grid;gap:18px}
+.ind-baris{display:grid;grid-template-columns:210px 1fr 70px;align-items:center;gap:18px}
+.ind-baris .nm{font:650 20px var(--isi);display:flex;align-items:center;gap:10px}.ind-baris .nm i{width:12px;height:12px;border-radius:3px;background:var(--w)}
+.ind-rel{position:relative;display:grid;grid-template-columns:repeat(10,1fr);gap:4px;height:30px}
+.ind-rel s{border-radius:4px;background:rgba(16,32,30,.08);transition:background-color .4s var(--alir),transform .4s var(--alir)}
+.ind-rel s.isi{background:var(--w)}
+.ind-baris:first-child .ind-rel::after{content:"kritis < 3";position:absolute;left:calc(30% - 2px);top:-22px;font:12px var(--mono);color:#c2412b}
+.ind-rel::before{content:"";position:absolute;left:calc(30% - 2px);top:-6px;bottom:-6px;width:2px;background:#c2412b;opacity:.55;z-index:2}
+.ind-baris .v{font:600 30px var(--mono);text-align:right;font-variant-numeric:tabular-nums}
+.ind-baris .v.naik{color:var(--env)}.ind-baris .v.turun{color:#c2412b}
+.proyek{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.proyek button{all:unset;cursor:pointer;padding:16px 18px;border-radius:14px;border:1px solid var(--garis);background:var(--permukaan);display:grid;gap:6px;transition:transform .15s var(--alir),border-color .2s,box-shadow .2s}
+.proyek button:active{transform:scale(.98)}
+.proyek button[aria-pressed="true"]{border-color:var(--tinta);box-shadow:0 0 0 3px rgba(16,32,30,.12)}
+.proyek .kd{font:600 13px var(--mono);color:var(--samar)}.proyek .jd{font:650 18px var(--isi);color:var(--tinta)}
+.proyek .dp{display:flex;gap:6px}.proyek .dp span{font:600 13px var(--mono);padding:2px 7px;border-radius:6px;background:color-mix(in oklab,var(--w) 16%,transparent);color:var(--tinta)}
+
+/* peta situs */
+.halaman{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+.halaman a{all:unset;cursor:pointer;padding:18px 18px 16px;border-radius:14px;border:1px solid var(--garis);background:var(--permukaan);display:grid;gap:6px;transition:transform .2s var(--alir),box-shadow .2s}
+.halaman a:hover{transform:translateY(-3px);box-shadow:0 14px 28px -18px rgba(16,32,30,.4)}
+.halaman .jd{font:650 19px var(--isi);color:var(--tinta);display:flex;justify-content:space-between}
+.halaman .jd span{font:500 12px var(--mono);color:var(--samar)}
+.halaman .gn{font-size:15px;line-height:1.4;color:var(--samar)}
+
+/* demo langsung */
+.peramban{border-radius:16px;overflow:hidden;border:1px solid var(--garis);background:#fff;box-shadow:0 30px 60px -30px rgba(16,32,30,.5)}
+.peramban .bilah{display:flex;align-items:center;gap:8px;padding:10px 14px;background:var(--kertas-2);border-bottom:1px solid var(--garis)}
+.peramban .bilah i{width:11px;height:11px;border-radius:50%;background:#d3cbbb}
+.peramban .alamat{margin-left:12px;flex:1;font:14px var(--mono);color:var(--redup);background:var(--permukaan);border-radius:8px;padding:6px 12px}
+.bingkai{position:relative;width:1040px;height:560px;overflow:hidden;background:var(--kertas)}
+.bingkai iframe{position:absolute;left:0;top:0;width:1440px;height:776px;border:0;transform:scale(.7222);transform-origin:0 0}
+.demo-tab{display:grid;gap:10px}
+.demo-tab button{all:unset;cursor:pointer;padding:14px 18px;border-radius:12px;border:1px solid var(--garis);background:var(--permukaan);font:600 18px var(--isi);transition:transform .15s var(--alir)}
+.demo-tab button:active{transform:scale(.98)}
+.demo-tab button[aria-pressed="true"]{background:var(--tinta);color:var(--kertas);border-color:var(--tinta)}
+.demo-tab .ket{font:15px/1.4 var(--isi);color:var(--samar);margin-top:6px}
+
+/* mini game */
+.mg-kartu{height:170px;display:grid;place-items:center;text-align:center;padding:24px;font:600 30px/1.25 var(--isi);color:var(--tinta)}
+.mg-tombol{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:16px}
+.mg-tombol button{all:unset;cursor:pointer;padding:18px 20px;border-radius:14px;border:1px solid var(--garis);background:var(--permukaan);font:600 19px var(--isi);box-shadow:0 4px 0 rgba(16,32,30,.12);transition:transform .12s var(--alir)}
+.mg-tombol button:active{transform:translateY(2px)}
+.mg-status{display:flex;justify-content:space-between;margin-top:16px;font:600 18px var(--mono);color:var(--redup)}
+.mg-umpan{min-height:30px;margin-top:10px;font-size:19px}
+
+/* lapis Shelbot */
+.lapis{display:grid;gap:18px}
+.lapis-baris{display:grid;grid-template-columns:300px 1fr 260px;align-items:center;gap:24px;padding:22px 26px}
+.lapis-baris .tg{font:600 13px var(--mono);letter-spacing:.14em;text-transform:uppercase;color:var(--w)}
+.lapis-baris h3{font-size:26px;margin:6px 0 0}
+.lapis-baris .ket{font-size:19px;line-height:1.45;color:var(--redup)}
+.lapis-baris .st{justify-self:end;font:600 15px var(--isi);padding:8px 14px;border-radius:999px;background:color-mix(in oklab,var(--w) 14%,transparent);color:var(--tinta);white-space:nowrap}
+.jalur-kecil{position:relative;height:4px;border-radius:4px;background:rgba(16,32,30,.08);margin-top:14px;overflow:hidden}
+.jalur-kecil::after{content:"";position:absolute;top:0;left:-20%;width:20%;height:100%;background:var(--w);border-radius:4px;animation:paket 2.6s var(--alir) infinite}
+@keyframes paket{to{left:100%}}
+
+/* aturan besar */
+.aturan{display:grid;grid-template-columns:1fr 1fr;gap:22px}
+.aturan .lembar{padding:28px 30px}
+.aturan .no{font:600 64px/1 var(--display);color:var(--society);opacity:.85;margin-bottom:10px}
+
+/* grafik akurasi */
+.grafik{display:grid;gap:30px}
+.gr-baris .jd{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:10px}
+.gr-baris .jd b{font:650 21px var(--isi)}.gr-baris .jd span{font:14px var(--mono);color:var(--samar)}
+.gr-batang{position:relative;height:30px;border-radius:8px;background:rgba(16,32,30,.06);margin-bottom:8px}
+.gr-batang i{position:absolute;left:0;top:0;bottom:0;border-radius:8px;width:0;transition:width 1.1s var(--alir)}
+.gr-batang.sebelum i{background:rgba(16,32,30,.22)}.gr-batang.sesudah i{background:var(--society)}
+.gr-batang em{position:absolute;right:12px;top:4px;font:600 16px var(--mono);font-style:normal;color:var(--tinta)}
+.gr-batang .lbl{position:absolute;left:12px;top:5px;font:600 14px var(--isi);color:var(--tinta);z-index:2}
+.gr-batang.sesudah .lbl{color:#fff}
+
+/* studio */
+.linimasa{position:relative;display:grid;gap:18px;padding-left:34px}
+.linimasa::before{content:"";position:absolute;left:8px;top:8px;bottom:8px;width:3px;border-radius:3px;background:linear-gradient(var(--env),rgba(22,160,111,.2))}
+.linimasa li{list-style:none;position:relative}
+.linimasa li::before{content:"";position:absolute;left:-34px;top:6px;width:18px;height:18px;border-radius:50%;border:3px solid var(--env);background:var(--permukaan)}
+.linimasa li:last-child::before{background:var(--env)}
+.linimasa b{font:700 16px var(--mono);color:var(--env);letter-spacing:.08em}
+.linimasa p{font-size:20px;line-height:1.45;margin-top:2px}
+.masukan{display:grid;gap:8px;margin-bottom:22px}
+.masukan div{font-size:17px;color:var(--redup)}.masukan div span{font:600 12px var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--samar);display:block}
+.foto-ai{border-radius:16px;overflow:hidden;box-shadow:0 30px 60px -30px rgba(16,32,30,.55);border:1px solid var(--garis)}
+.foto-ai img{display:block;width:100%;height:auto}
+
+/* arsitektur */
+.arsitek{position:relative;height:520px}
+.simpul{position:absolute;padding:20px 22px;width:330px}
+.simpul .tg{font:600 12px var(--mono);letter-spacing:.14em;text-transform:uppercase;color:var(--samar)}
+.simpul h3{font-size:24px;margin:6px 0 6px}
+.simpul p{font-size:17px;line-height:1.45}
+.arsitek svg{position:absolute;inset:0;width:100%;height:100%}
+.arsitek svg path{fill:none;stroke:var(--sungai);stroke-width:2;stroke-dasharray:8 10;animation:arus 12s linear infinite}
+
+/* daftar langkah */
+.langkah{display:grid;gap:16px;counter-reset:l}
+.langkah li{list-style:none;display:grid;grid-template-columns:64px 1fr;gap:18px;align-items:start;padding:18px 0;border-top:1px solid var(--garis)}
+.langkah li::before{counter-increment:l;content:counter(l,decimal-leading-zero);font:600 30px/1 var(--display);color:var(--economy)}
+.langkah h3{font-size:23px;margin-bottom:4px}.langkah p{font-size:19px}
+
+/* penutup */
+#qr{background:#fff;padding:16px;border-radius:16px;display:inline-block;border:1px solid var(--garis)}
+#qr img,#qr canvas{display:block;width:220px;height:220px}
+
+/* ikhtisar dan bantuan */
+#ikhtisar{position:fixed;inset:0;z-index:50;background:rgba(244,240,231,.97);display:none;overflow:auto;padding:32px;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:14px;align-content:start}
+#ikhtisar.on{display:grid}
+#ikhtisar div{cursor:pointer;padding:16px;border-radius:12px;border:1px solid var(--garis);background:var(--permukaan);font:15px/1.4 var(--isi);color:var(--redup)}
+#ikhtisar div b{display:block;color:var(--tinta);margin-bottom:6px;font-size:16px}
+#ikhtisar div.kini{border-color:var(--tinta)}
+.catatan{display:none}
+.petunjuk{position:absolute;right:96px;top:40px;font:14px var(--isi);color:var(--samar)}
+kbd{font:600 12px var(--mono);border:1px solid var(--garis);border-bottom-width:2px;border-radius:5px;padding:1px 6px;background:var(--permukaan);color:var(--tinta)}
+:focus-visible{outline:3px solid var(--future);outline-offset:3px}
+
+/* ---- animasi maskot dari situs ---- */
+@keyframes mk-apung {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-2.5px); }
+}
+@keyframes mk-bulu {
+  0%, 100% { transform: rotate(-3deg); }
+  50% { transform: rotate(4deg); }
+}
+@keyframes mk-anting {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(1px); }
+}
+@keyframes mk-terbang {
+  0%, 100% { transform: translateY(0) rotate(-1.2deg); }
+  50% { transform: translateY(-9px) rotate(1.2deg); }
+}
+@keyframes mk-awan {
+  0%, 100% { transform: translateX(6px); }
+  50% { transform: translateX(-14px); }
+}
+@keyframes mk-enggang {
+  0%, 100% { transform: translate(0, 0); }
+  50% { transform: translate(10px, -12px); }
+}
+@keyframes mk-sayap {
+  0%, 100% { transform: rotate(-6deg) scaleY(1); }
+  45% { transform: rotate(28deg) scaleY(0.82); }
+}
+@keyframes mk-goyang {
+  0%, 100% { transform: rotate(-0.8deg); }
+  50% { transform: rotate(1deg); }
+}
+@keyframes mk-tunjuk {
+  0%, 100% { transform: translateX(0); }
+  50% { transform: translateX(2.5px); }
+}
+.mk-apung { animation: mk-apung 5s var(--ease-out-soft) infinite; }
+.mk-bulu {
+  transform-origin: 20px 56px;
+  animation: mk-bulu 6s var(--ease-out-soft) infinite;
+}
+.mk-anting { animation: mk-anting 3.6s var(--ease-out-soft) infinite; }
+.mk-kedip-a {
+  transform-origin: 22px 71px;
+  animation: mk-kedip 7.3s steps(1, end) infinite;
+}
+.mk-kedip-b {
+  transform-origin: 24px 71px;
+  animation: mk-kedip 5.9s steps(1, end) infinite;
+}
+.mk-kedip-a, .mk-kedip-b, .mk-perahu { animation: none; }
+.mk-terbang {
+  transform-box: fill-box;
+  transform-origin: 50% 80%;
+  animation: mk-terbang 6s var(--ease-out-soft) infinite;
+}
+.mk-ketinting {
+  transform-box: fill-box;
+  transform-origin: 50% 50%;
+  animation: mk-terbang 6s var(--ease-out-soft) infinite;
+}
+.mk-angkat-a {
+  transform-box: fill-box;
+  transform-origin: 20% 100%;
+  animation: mk-angkat 2.8s var(--ease-out-soft) infinite;
+}
+.mk-angkat-b {
+  transform-box: fill-box;
+  transform-origin: 80% 100%;
+  animation: mk-angkat 2.8s var(--ease-out-soft) infinite;
+  animation-delay: -1.4s;
+}
+.mk-awan { animation: mk-awan 18s linear infinite; }
+.mk-enggang {
+  transform-box: fill-box;
+  animation: mk-enggang 5.5s var(--ease-out-soft) infinite;
+}
+.mk-sayap {
+  transform-box: fill-box;
+  transform-origin: 85% 95%;
+  animation: mk-sayap 1.5s cubic-bezier(0.45, 0, 0.55, 1) infinite;
+}
+.mk-goyang {
+  transform-box: fill-box;
+  transform-origin: 50% 100%;
+  animation: mk-goyang 7s var(--ease-out-soft) infinite;
+}
+.mk-tunjuk {
+  transform-box: fill-box;
+  animation: mk-tunjuk 3.6s var(--ease-out-soft) infinite;
+}
+.mk-goyang, .mk-tunjuk, .mk-kartu { animation: none; }
+.mk-tunjuk-kiri { animation-direction: reverse; }
+
+@media (prefers-reduced-motion:reduce){
+  .slide,.slide.aktif,.frag,.fase-rel .rentang,.gr-batang i,#ketinting{transition:none}
+  .maskot-besar,.ombak path,.arsitek svg path,.jalur-kecil::after,[class^="mk-"],[class*=" mk-"]{animation:none!important}
+}
+</style>
+</head>
+<body>
+<div id="vp"><div id="panggung">
+
+<!-- 1 ─ Judul -->
+<section class="slide" data-judul="Pembuka" data-bab="0">
+  <div class="pembuka">
+    <div>
+      <div class="lockup"><span>Futures in Action</span><span>Samarinda 2045</span></div>
+      <h1>Hari ini kita <em>memutuskan</em>. Pada 2045, kita melihat akibatnya.</h1>
+      <p class="lead" style="margin-top:30px">Situs pendamping dan Shelbot, GenAI di meja permainan, untuk sebuah board game keberlanjutan tentang Samarinda.</p>
+      <p class="mini" style="margin-top:44px">shellyefwinda.github.io/shelbot &nbsp;·&nbsp; Oktober 2026</p>
+    </div>
+    <div class="maskot-besar"><svg viewBox="0 0 260 200" role="img" aria-label="Shelly dan Hakam, maskot Samarinda 2045"><defs><linearGradient id="mk-air" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="var(--color-aqua)"></stop><stop offset="1" stop-color="var(--color-mint)"></stop></linearGradient><linearGradient id="mk-luruh" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#fff" stop-opacity="0"></stop><stop offset="0.16" stop-color="#fff" stop-opacity="1"></stop><stop offset="0.84" stop-color="#fff" stop-opacity="1"></stop><stop offset="1" stop-color="#fff" stop-opacity="0"></stop></linearGradient><mask id="mk-tepi" maskUnits="userSpaceOnUse" x="0" y="0" width="260" height="240"><rect x="0" y="0" width="260" height="240" fill="url(#mk-luruh)"></rect></mask><linearGradient id="mk-manik" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="var(--color-ember)"></stop><stop offset="1" stop-color="var(--color-rose)"></stop></linearGradient></defs><g aria-hidden="true"><g class="mk-awan" fill="var(--bg-raised)" stroke="var(--fg)" stroke-opacity="0.12" stroke-width="0.8"><path d="M22 44 C 22 38, 30 36, 34 39 C 37 32, 50 32, 53 39 C 60 37, 66 41, 64 46 Z"></path><path d="M196 28 C 196 23, 203 22, 206 24 C 209 19, 219 19, 221 24 C 227 23, 231 26, 229 30 Z"></path></g><g transform="translate(8 -23) scale(0.55)"><g class="mk-enggang" style="animation-delay:0s"><path d="M34 79 L6 82 C 3 82.5, 3 88, 6 88.5 L34 86 Z" fill="#fbfaf6" stroke="#1d232b" stroke-width="0.8" stroke-opacity="0.35"></path><path d="M13 81.3 L19 80.8 L19 87.3 L13 87.8 Z" fill="#1d232b"></path><path d="M31 82 C 31 75, 38 72, 48 72 C 57 72, 62 76, 62 81 C 62 87, 55 90, 46 90 C 37 90, 31 87, 31 82 Z" fill="#1d232b"></path><path d="M35 85 C 38 89, 44 90, 48 89 C 44 87, 39 86, 35 85 Z" fill="#fbfaf6" opacity="0.9"></path><g class="mk-sayap" style="animation-delay:0s"><path d="M40 78 C 34 66, 30 56, 26 46 C 38 48, 50 58, 54 76 Z" fill="#1d232b"></path><path d="M30 52 C 35 58, 39 65, 42 72 L45 71 C 41 63, 37 56, 32 50 Z" fill="#fbfaf6" opacity="0.85"></path></g><circle cx="63" cy="77" r="6.2" fill="#1d232b"></circle><path d="M62 71.5 C 67 67.5, 76 67.5, 81 70.5 C 76 71.5, 70 72.5, 65 74 Z" fill="var(--color-ember)"></path><path d="M62 71.5 C 66 69.5, 72 69, 77 69.8" stroke="#d9582b" stroke-width="1" fill="none"></path><path d="M66 74.5 C 74 73, 82 74.5, 88 79.5 C 81 80.5, 73 80.5, 66 79.5 Z" fill="#f2c040"></path><path d="M67 77.2 C 74 77, 81 78, 87 79.5" stroke="#c98f1c" stroke-width="0.7" fill="none"></path><circle cx="64.5" cy="75.5" r="1.9" fill="#e0533a"></circle><circle cx="64.5" cy="75.5" r="0.9" fill="#fbfaf6"></circle></g></g><g transform="translate(170 -22) scale(0.5)"><g class="mk-enggang" style="animation-delay:-1.8s"><path d="M34 79 L6 82 C 3 82.5, 3 88, 6 88.5 L34 86 Z" fill="#fbfaf6" stroke="#1d232b" stroke-width="0.8" stroke-opacity="0.35"></path><path d="M13 81.3 L19 80.8 L19 87.3 L13 87.8 Z" fill="#1d232b"></path><path d="M31 82 C 31 75, 38 72, 48 72 C 57 72, 62 76, 62 81 C 62 87, 55 90, 46 90 C 37 90, 31 87, 31 82 Z" fill="#1d232b"></path><path d="M35 85 C 38 89, 44 90, 48 89 C 44 87, 39 86, 35 85 Z" fill="#fbfaf6" opacity="0.9"></path><g class="mk-sayap" style="animation-delay:-1.8s"><path d="M40 78 C 34 66, 30 56, 26 46 C 38 48, 50 58, 54 76 Z" fill="#1d232b"></path><path d="M30 52 C 35 58, 39 65, 42 72 L45 71 C 41 63, 37 56, 32 50 Z" fill="#fbfaf6" opacity="0.85"></path></g><circle cx="63" cy="77" r="6.2" fill="#1d232b"></circle><path d="M62 71.5 C 67 67.5, 76 67.5, 81 70.5 C 76 71.5, 70 72.5, 65 74 Z" fill="var(--color-ember)"></path><path d="M62 71.5 C 66 69.5, 72 69, 77 69.8" stroke="#d9582b" stroke-width="1" fill="none"></path><path d="M66 74.5 C 74 73, 82 74.5, 88 79.5 C 81 80.5, 73 80.5, 66 79.5 Z" fill="#f2c040"></path><path d="M67 77.2 C 74 77, 81 78, 87 79.5" stroke="#c98f1c" stroke-width="0.7" fill="none"></path><circle cx="64.5" cy="75.5" r="1.9" fill="#e0533a"></circle><circle cx="64.5" cy="75.5" r="0.9" fill="#fbfaf6"></circle></g></g><g transform="translate(-4 18) scale(0.7)"><g class="mk-enggang" style="animation-delay:-3.4s"><path d="M34 79 L6 82 C 3 82.5, 3 88, 6 88.5 L34 86 Z" fill="#fbfaf6" stroke="#1d232b" stroke-width="0.8" stroke-opacity="0.35"></path><path d="M13 81.3 L19 80.8 L19 87.3 L13 87.8 Z" fill="#1d232b"></path><path d="M31 82 C 31 75, 38 72, 48 72 C 57 72, 62 76, 62 81 C 62 87, 55 90, 46 90 C 37 90, 31 87, 31 82 Z" fill="#1d232b"></path><path d="M35 85 C 38 89, 44 90, 48 89 C 44 87, 39 86, 35 85 Z" fill="#fbfaf6" opacity="0.9"></path><g class="mk-sayap" style="animation-delay:-3.4s"><path d="M40 78 C 34 66, 30 56, 26 46 C 38 48, 50 58, 54 76 Z" fill="#1d232b"></path><path d="M30 52 C 35 58, 39 65, 42 72 L45 71 C 41 63, 37 56, 32 50 Z" fill="#fbfaf6" opacity="0.85"></path></g><circle cx="63" cy="77" r="6.2" fill="#1d232b"></circle><path d="M62 71.5 C 67 67.5, 76 67.5, 81 70.5 C 76 71.5, 70 72.5, 65 74 Z" fill="var(--color-ember)"></path><path d="M62 71.5 C 66 69.5, 72 69, 77 69.8" stroke="#d9582b" stroke-width="1" fill="none"></path><path d="M66 74.5 C 74 73, 82 74.5, 88 79.5 C 81 80.5, 73 80.5, 66 79.5 Z" fill="#f2c040"></path><path d="M67 77.2 C 74 77, 81 78, 87 79.5" stroke="#c98f1c" stroke-width="0.7" fill="none"></path><circle cx="64.5" cy="75.5" r="1.9" fill="#e0533a"></circle><circle cx="64.5" cy="75.5" r="0.9" fill="#fbfaf6"></circle></g></g></g><g class="mk-ketinting" aria-hidden="true"><path d="M46 162 C 52 182, 90 190, 134 190 C 178 190, 216 182, 224 162 C 196 172, 160 176, 134 176 C 108 176, 74 172, 46 162 Z" fill="var(--color-ulin)" opacity="0.85"></path><path d="M46 162 C 74 172, 108 176, 134 176 C 160 176, 196 172, 224 162 L218 158 L52 158 Z" fill="var(--color-ember)" opacity="0.55"></path><g fill="var(--bg-raised)" opacity="0.6"><path d="M70 164 l6 0 l-3 6 Z"></path><path d="M92 164 l6 0 l-3 6 Z"></path><path d="M114 164 l6 0 l-3 6 Z"></path><path d="M136 164 l6 0 l-3 6 Z"></path><path d="M158 164 l6 0 l-3 6 Z"></path><path d="M180 164 l6 0 l-3 6 Z"></path><path d="M200 164 l6 0 l-3 6 Z"></path></g><path d="M224 168 L250 152" stroke="var(--fg)" stroke-width="2.4" opacity="0.5" stroke-linecap="round"></path><circle cx="252" cy="150" r="4.5" fill="none" stroke="var(--fg)" stroke-width="1.8" opacity="0.5"></circle><g stroke="var(--color-aqua)" stroke-width="1.6" fill="none" opacity="0.4" stroke-linecap="round"><path d="M66 196 q10 -5 20 0"></path><path d="M112 199 q10 -5 20 0"></path><path d="M158 196 q10 -5 20 0"></path></g></g><g><g class="mk-terbang" style="transform:translateX(0px)"><g transform="translate(78 0)"><line x1="38" y1="94" x2="44" y2="112" stroke="#243040" stroke-width="4" stroke-linecap="round"></line><circle cx="45" cy="114" r="3.4" fill="#e9c19f"></circle><g class="mk-bulu"><path d="M14 56 C 10 44, 12 37, 16 33 C 20 39, 20 48, 18 57 Z" fill="var(--bg-raised)" stroke="#243040" stroke-width="1.4" stroke-linejoin="round"></path></g><path d="M6 108 C 6 92, 13 84, 24 84 C 35 84, 42 92, 42 108 L42 148 L6 148 Z" fill="var(--color-future)" opacity="0.9"></path><path d="M24 86 L24 148" stroke="var(--bg)" stroke-width="1.4" opacity="0.5"></path><path d="M10 96 q14 8 28 0 q-3 10 -14 10 q-11 0 -14 -10 Z" fill="url(#mk-manik)"></path><g stroke="#243040" stroke-width="4" stroke-linecap="round"><line x1="16" y1="148" x2="16" y2="170"></line><line x1="32" y1="148" x2="32" y2="170"></line></g><g class="mk-angkat-b"><line x1="8" y1="96" x2="-2" y2="74" stroke="#243040" stroke-width="4" stroke-linecap="round"></line><circle cx="-3" cy="72" r="3.4" fill="#e9c19f"></circle></g><path d="M8 66 C 8 54, 15 48, 24 48 C 33 48, 40 54, 40 66 L40 74 C 40 82, 33 88, 24 88 C 15 88, 8 82, 8 74 Z" fill="#e9c19f"></path><path d="M6 68 C 4 50, 13 42, 24 42 C 35 42, 44 50, 42 68 C 38 58, 34 54, 24 54 C 14 54, 10 58, 6 68 Z" fill="#161f28"></path><path d="M7 62 q17 -8 34 0 l0 6 q-17 -7 -34 0 Z" fill="url(#mk-manik)"></path><g class="mk-kedip-b" fill="#161f28"><g class="mk-pupil" style="transform:translateX(0px)"><circle cx="18" cy="71" r="2.2"></circle><circle cx="30" cy="71" r="2.2"></circle></g></g><path d="M20 78 q4 4 8 0" fill="none" stroke="#161f28" stroke-width="1.5" stroke-linecap="round"></path></g><g transform="translate(140 0)"><line x1="8" y1="94" x2="2" y2="112" stroke="#243040" stroke-width="4" stroke-linecap="round"></line><circle cx="1" cy="114" r="3.4" fill="#f3d3b8"></circle><g class="mk-bulu" style="animation-delay:-1.8s"><path d="M30 54 C 34 42, 33 35, 29 31 C 25 37, 26 46, 27 55 Z" fill="var(--bg-raised)" stroke="#243040" stroke-width="1.4" stroke-linejoin="round"></path></g><path d="M4 108 C 4 92, 11 84, 22 84 C 33 84, 40 92, 40 108 L44 150 L0 150 Z" fill="var(--color-env)" opacity="0.9"></path><path d="M8 96 q14 8 28 0 q-3 10 -14 10 q-11 0 -14 -10 Z" fill="url(#mk-manik)"></path><g stroke="var(--bg)" stroke-width="1.2" opacity="0.45"><line x1="4" y1="138" x2="40" y2="138"></line><line x1="2" y1="144" x2="42" y2="144"></line></g><g stroke="#243040" stroke-width="4" stroke-linecap="round"><line x1="15" y1="150" x2="15" y2="170"></line><line x1="29" y1="150" x2="29" y2="170"></line></g><g class="mk-angkat-a"><line x1="38" y1="96" x2="48" y2="74" stroke="#243040" stroke-width="4" stroke-linecap="round"></line><circle cx="49" cy="72" r="3.4" fill="#f3d3b8"></circle></g><path d="M6 66 C 6 54, 13 48, 22 48 C 31 48, 38 54, 38 66 L38 74 C 38 82, 31 88, 22 88 C 13 88, 6 82, 6 74 Z" fill="#f3d3b8"></path><path d="M4 70 C 2 50, 11 42, 22 42 C 33 42, 42 50, 40 70 L40 84 C 38 74, 36 66, 22 66 C 8 66, 6 74, 4 84 Z" fill="#161f28"></path><path d="M5 62 q17 -8 34 0 l0 6 q-17 -7 -34 0 Z" fill="url(#mk-manik)"></path><g class="mk-kedip-a" fill="#161f28"><g class="mk-pupil" style="transform:translateX(0px)"><circle cx="16" cy="71" r="2.2"></circle><circle cx="28" cy="71" r="2.2"></circle></g></g><path d="M18 78 q4 4 8 0" fill="none" stroke="#161f28" stroke-width="1.5" stroke-linecap="round"></path><g class="mk-anting"><circle cx="6" cy="76" r="1.8" fill="var(--color-ember)"></circle><circle cx="38" cy="76" r="1.8" fill="var(--color-ember)"></circle></g></g></g></g><g class="mk-sapa" style="opacity:0" aria-hidden="true"><rect x="80" y="8" width="104" height="26" rx="13" fill="var(--bg-raised)" stroke="var(--line-strong)" stroke-width="1"></rect><path d="M126 34 l6 8 l6 -8 Z" fill="var(--bg-raised)"></path><text x="132" y="25" text-anchor="middle" font-size="11" fill="var(--fg)" font-family="var(--font-body), system-ui, sans-serif">Selamat datang</text></g></svg></div>
+  </div>
+  <p class="petunjuk"><kbd>→</kbd> lanjut &nbsp; <kbd>O</kbd> ikhtisar &nbsp; <kbd>P</kbd> presenter &nbsp; <kbd>F</kbd> layar penuh</p>
+  <div class="catatan">Buka dengan kalimat di layar. Ini permainan papan tentang Samarinda 2045, dimainkan lima siswa dengan peran berbeda. Yang akan saya tunjukkan: permainannya sebentar, lalu situs dan Shelbot yang kami bangun untuk mendampinginya, lalu apa yang ada di balik layar.</div>
+</section>
+
+<!-- 2 ─ Konteks -->
+<section class="slide" data-judul="Samarinda dan Mahakam" data-bab="0">
+  <p class="alis"><i></i>Latar permainan</p>
+  <h2>Empat masalah kota yang saling memberi makan</h2>
+  <div class="grid2" style="align-items:start">
+    <div style="display:grid;gap:22px">
+      <div class="frag"><h3>Ruang hijau menyusut</h3><p class="kecil">Daerah resapan berkurang, suhu kota naik.</p></div>
+      <div class="frag"><h3>Banjir</h3><p class="kecil">Limpasan bertemu drainase yang tersumbat sampah.</p></div>
+      <div class="frag"><h3>Sampah dan pencemaran sungai</h3><p class="kecil">Banjir menyebarkan sampah lebih jauh ke kampung.</p></div>
+      <div class="frag"><h3>Tambang dan lubang bekas tambang</h3><p class="kecil">Menopang ekonomi, sekaligus mengubah bentang alam.</p></div>
+    </div>
+    <svg viewBox="0 0 520 470" role="img" aria-label="Lingkaran sebab-akibat empat masalah kota" style="width:100%;height:auto">
+      <defs><marker id="panah" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0L10 5L0 10z" fill="#0e4f52"/></marker></defs>
+      <g fill="none" stroke="#0e4f52" stroke-width="2.4" marker-end="url(#panah)" stroke-dasharray="7 9">
+        <path d="M300 92 C 400 110, 440 170, 440 210"><animate attributeName="stroke-dashoffset" from="0" to="-64" dur="2.5s" repeatCount="indefinite"/></path>
+        <path d="M410 300 C 380 380, 320 400, 290 405"><animate attributeName="stroke-dashoffset" from="0" to="-64" dur="2.5s" repeatCount="indefinite"/></path>
+        <path d="M200 405 C 140 400, 90 360, 82 300"><animate attributeName="stroke-dashoffset" from="0" to="-64" dur="2.5s" repeatCount="indefinite"/></path>
+        <path d="M95 205 C 110 140, 150 100, 215 90"><animate attributeName="stroke-dashoffset" from="0" to="-64" dur="2.5s" repeatCount="indefinite"/></path>
+      </g>
+      <g font-family="Inter,Segoe UI,sans-serif" font-size="19" font-weight="650" text-anchor="middle" fill="#10201e">
+        <rect x="160" y="52" width="200" height="60" rx="14" fill="#fbf9f4" stroke="#16a06f" stroke-width="2"/><text x="260" y="88">Ruang hijau ↓</text>
+        <rect x="350" y="220" width="160" height="60" rx="14" fill="#fbf9f4" stroke="#2f7fe0" stroke-width="2"/><text x="430" y="256">Banjir ↑</text>
+        <rect x="170" y="380" width="180" height="60" rx="14" fill="#fbf9f4" stroke="#35c8ff" stroke-width="2"/><text x="260" y="416">Sampah sungai</text>
+        <rect x="10" y="220" width="160" height="60" rx="14" fill="#fbf9f4" stroke="#b4613a" stroke-width="2"/><text x="90" y="256">Tambang</text>
+      </g>
+      <text x="260" y="242" text-anchor="middle" font-family="Fraunces,Georgia,serif" font-size="21" fill="#45544f">tidak ada</text><text x="260" y="270" text-anchor="middle" font-family="Fraunces,Georgia,serif" font-size="21" fill="#45544f">satu tombol</text>
+    </svg>
+  </div>
+  <p class="sumber">Isu dan kaitannya dari panduan resmi permainan dan halaman Samarinda di situs.</p>
+  <div class="catatan">Permainan ini berangkat dari isu nyata. Panahnya menunjukkan kenapa sulit: ruang hijau yang menyusut menambah limpasan, limpasan bertemu drainase yang tersumbat sampah, banjir menyebarkan sampah, dan kegiatan yang menopang ekonomi kota adalah juga yang mengubah bentang alamnya. Tidak ada satu pihak yang bisa menyelesaikannya sendirian. Itu sebabnya permainannya kooperatif.</div>
+</section>
+
+<!-- 3 ─ Bab 1 -->
+<section class="slide bab-slide" data-judul="Bab 1 · Permainannya" data-bab="1" style="--bab:var(--env)">
+  <div class="bab-isi"><p class="bab-no">BAB 01</p><h2>Permainannya</h2><p>Lima peran, enam fase, satu kota yang harus tetap seimbang.</p></div>
+  <svg class="ombak" viewBox="0 0 1600 180" preserveAspectRatio="none"><path d="M0 60 C 300 20, 500 110, 800 70 S 1300 20, 1600 70"/><path d="M0 110 C 300 70, 500 160, 800 120 S 1300 70, 1600 120"/></svg>
+  <div class="catatan">Bagian pertama: permainannya sendiri, supaya semua orang tahu apa yang didampingi situs ini.</div>
+</section>
+
+<!-- 4 ─ Angka -->
+<section class="slide" data-judul="Permainan dalam angka" data-bab="1" style="--bab:var(--env)">
+  <p class="alis"><i></i>Satu sesi di kelas</p>
+  <h2>Board game fisik, dimainkan di atas meja</h2>
+  <div style="display:grid;grid-template-columns:1fr 1fr 1.15fr 1fr 1.7fr;gap:28px;margin-top:40px">
+    <div class="angka c1"><span class="n" data-hitung="5">5</span><span class="l">peran pemangku kepentingan</span></div>
+    <div class="angka c2"><span class="n" data-hitung="6">6</span><span class="l">fase permainan</span></div>
+    <div class="angka c3"><span class="n" data-hitung="184">184</span><span class="l">kartu dalam dua belas jenis</span></div>
+    <div class="angka c4"><span class="n" data-hitung="8">8</span><span class="l">zona tematik di papan</span></div>
+    <div class="angka c5"><span class="n">100–120</span><span class="l">menit satu sesi</span></div>
+  </div>
+  <p class="lead" style="margin-top:56px">Pemerintah, pelaku usaha, masyarakat sungai, warga dan pemuda, serta ilmuwan dan pendidik. Menang atau kalah bersama. Satu proyek prioritas berlanjut menjadi aksi nyata siswa selama 7 sampai 30 hari.</p>
+  <p class="sumber">Sumber: Futures in Action, Complete Game Guide, Samarinda 2045 Edition. Status: prototipe playtesting.</p>
+  <div class="catatan">Angka-angka ini semuanya dari panduan resmi. Yang penting ditekankan: permainannya kooperatif, dan berakhir dengan aksi nyata 7 sampai 30 hari, bukan cuma skor.</div>
+</section>
+
+<!-- 5 ─ Enam fase, skala waktu -->
+<section class="slide" data-judul="Enam fase, skala waktu" data-bab="1" style="--bab:var(--env)">
+  <p class="alis"><i></i>Waktu tiap fase</p>
+  <h2>Enam fase, dan lamanya tidak sama</h2>
+  <div id="fase"></div>
+  <div class="sumbu"><span></span><div class="t" id="sumbu-fase"></div></div>
+  <p class="sumber">Rentang menit per fase dari panduan resmi. Bagian padat = batas bawah, bagian pudar = sampai batas atas. Fase 4 paling panjang karena proyek dibayar lewat Project Market dalam tiga ronde.</p>
+  <div class="catatan">Grafik ini memakai skala yang sama untuk semua fase. Fase 3 paling singkat, 10 sampai 12 menit. Fase 4 paling panjang, 22 sampai 28 menit. Dulu situs sempat menulis "15 sampai 18 menit per fase"; itu sudah kami koreksi supaya sesuai panduan.</div>
+</section>
+
+<!-- 6 ─ Empat masa depan -->
+<section class="slide" data-judul="Empat masa depan" data-bab="1" style="--bab:var(--env)">
+  <p class="alis"><i></i>Fase 2 · Bayangkan masa depan</p>
+  <h2>Setiap meja menyusun empat Samarinda, lalu memilih satu</h2>
+  <div class="grid2" style="grid-template-columns:1.15fr 1fr;gap:48px">
+    <svg id="cabang" viewBox="0 0 640 340" role="img" aria-label="Empat cabang masa depan dari hari ini menuju 2045" style="width:100%;height:auto"></svg>
+    <div class="interaktif"><div class="md-pilih" id="md-pilih"></div></div>
+  </div>
+  <div class="md-cerita" id="md-cerita"></div>
+  <div class="catatan">Klik tiap masa depan. Expected adalah garis dasar: kebiasaan hari ini diteruskan. Alternative mengubah sebagian keputusan. Preferred adalah kota yang paling diinginkan bersama. Transformative mengubah susunan yang selama ini dianggap tetap. Di Fase 3 satu dipilih, dan pilihan itu hanya sah bila didukung minimal empat dari lima peran.</div>
+</section>
+
+<!-- 7 ─ Indikator interaktif -->
+<section class="slide" data-judul="City Indicators" data-bab="1" style="--bab:var(--env)">
+  <p class="alis"><i></i>Empat City Indicator · skala 0–10, mulai di 5</p>
+  <h2>Satu keputusan menaikkan yang satu, menekan yang lain</h2>
+  <div class="grid2" style="grid-template-columns:1.15fr 1fr;align-items:start">
+    <div class="ind" id="ind" style="margin-top:26px"></div>
+    <div class="interaktif">
+      <p class="mini" style="margin-bottom:12px">Pilih dua Mini-Project. Angkanya dibaca dari baris dampak kartu aslinya.</p>
+      <div class="proyek" id="proyek"></div>
+    </div>
+  </div>
+  <p class="sumber">Dampak E/S/Ec/FR dari kartu P02, P05, P09, P31 di dek resmi. Syarat menang: tidak ada indikator yang berakhir di rentang kritis 0–2.</p>
+  <div class="catatan">Coba pilih Community Rain Garden dan Mahakam Microgrid. Lingkungan naik, tapi Ekonomi bisa turun. Itu inti permainannya: setiap pilihan ada harganya. Dasbor di situs bekerja dengan cara yang sama.</div>
+</section>
+
+<!-- 8 ─ Bab 2 -->
+<section class="slide bab-slide" data-judul="Bab 2 · Situsnya" data-bab="2" style="--bab:var(--future)">
+  <div class="bab-isi"><p class="bab-no">BAB 02</p><h2>Situsnya</h2><p>Untuk belajar sebelum bermain, dan menengok kembali sesudahnya. Dalam dua bahasa.</p></div>
+  <svg class="ombak" viewBox="0 0 1600 180" preserveAspectRatio="none"><path d="M0 60 C 300 20, 500 110, 800 70 S 1300 20, 1600 70"/><path d="M0 110 C 300 70, 500 160, 800 120 S 1300 70, 1600 120"/></svg>
+  <div class="catatan">Bagian kedua: situsnya.</div>
+</section>
+
+<!-- 9 ─ Peta situs -->
+<section class="slide" data-judul="Dua belas halaman" data-bab="2" style="--bab:var(--future)">
+  <p class="alis"><i></i>Peta situs · Bahasa Indonesia dan Inggris</p>
+  <h2>Dua belas halaman, masing-masing satu tugas</h2>
+  <div class="halaman" id="halaman"></div>
+  <p class="sumber">Setiap halaman punya alamat /id/ dan /en/. Klik untuk membuka di tab baru.</p>
+  <div class="catatan">Setiap halaman punya satu tugas. Aturan bisa dicetak empat halaman A4. Dasbor menghitung dampak dari kartu asli. Katalog membuka seluruh 184 kartu. Fasilitator untuk guru yang memandu sesi.</div>
+</section>
+
+<!-- 10 ─ Demo langsung -->
+<section class="slide" data-judul="Demo langsung" data-bab="2" style="--bab:var(--future)">
+  <p class="alis"><i></i>Demo langsung</p>
+  <div style="display:grid;grid-template-columns:1040px 1fr;gap:34px;align-items:start">
+    <div class="peramban"><div class="bilah"><i></i><i></i><i></i><span class="alamat" id="demo-alamat">shellyefwinda.github.io/shelbot/id/</span></div>
+      <div class="bingkai interaktif"><iframe id="demo" title="Situs Futures in Action" loading="lazy"></iframe></div></div>
+    <div class="demo-tab interaktif" id="demo-tab"></div>
+  </div>
+  <div class="catatan">Ini situs yang sedang tayang, bukan gambar. Pindah halaman lewat tombol di kanan. Di dalam bingkai bisa digulir dan diklik seperti biasa.</div>
+</section>
+
+<!-- 11 ─ Mini game -->
+<section class="slide" data-judul="Mini game" data-bab="2" style="--bab:var(--future)">
+  <p class="alis"><i></i>Mini game · Jaga Samarinda!</p>
+  <div class="grid2" style="align-items:start">
+    <div>
+      <h2>Pemanasan tiga menit sebelum bermain</h2>
+      <p class="lead">Tiga level berwaktu, 22 kartu bergambar, dua tantangan Samarinda, dan satu tantangan akhir. Benar +100, salah −25, bonus untuk jawaban beruntun.</p>
+      <p class="mini" style="margin-top:22px">Coba di sini. Isi kartu dari dokumen klien "Mini Game Interaktif".</p>
+    </div>
+    <div class="interaktif">
+      <div class="lembar mg-kartu" id="mg-kartu"></div>
+      <div class="mg-tombol"><button type="button" data-j="dukung">← Mendukung keberlanjutan</button><button type="button" data-j="ancam">Mengancam keberlanjutan →</button></div>
+      <div class="mg-umpan" id="mg-umpan"></div>
+      <div class="mg-status"><span id="mg-skor">Skor 0</span><span id="mg-ke">1 / 4</span></div>
+    </div>
+  </div>
+  <div class="catatan">Mini game ini bukan permainannya, hanya pemanasan. Gunanya membuat siswa mulai menimbang dampak pilihan sehari-hari. Ilustrasi tiap kartu digambar sendiri sebagai SVG, bukan gambar AI.</div>
+</section>
+
+<!-- 12 ─ Bab 3 -->
+<section class="slide bab-slide" data-judul="Bab 3 · Shelbot" data-bab="3" style="--bab:var(--society)">
+  <div class="bab-isi"><p class="bab-no">BAB 03</p><h2>Shelbot</h2><p>GenAI yang dipakai di meja permainan. Ia membantu berpikir, dan tidak pernah ikut memilih.</p></div>
+  <svg class="ombak" viewBox="0 0 1600 180" preserveAspectRatio="none"><path d="M0 60 C 300 20, 500 110, 800 70 S 1300 20, 1600 70"/><path d="M0 110 C 300 70, 500 160, 800 120 S 1300 70, 1600 120"/></svg>
+  <div class="catatan">Bagian ketiga: Shelbot.</div>
+</section>
+
+<!-- 13 ─ Lapis -->
+<section class="slide" data-judul="Shelbot berlapis" data-bab="3" style="--bab:var(--society)">
+  <p class="alis"><i></i>Tiga otak, satu pijakan</p>
+  <h2>Naskah lebih dulu, model bahasa di atasnya</h2>
+  <div class="lapis">
+    <div class="lembar lapis-baris frag" style="--w:var(--env)"><div><span class="tg">Lapis nol</span><h3>Naskah</h3></div><div><p class="ket">Jawaban dari panduan resmi dan 184 kartu. Berjalan di peramban, tanpa server.</p><div class="jalur-kecil"></div></div><span class="st">Gratis · offline</span></div>
+    <div class="lembar lapis-baris frag" style="--w:var(--future)"><div><span class="tg">Lapis satu</span><h3>Llama 3.3 70B · 3.1 8B</h3></div><div><p class="ket">Lebih luwes, berpijak pada jawaban naskah. Lewat Cloudflare Workers AI.</p><div class="jalur-kecil"></div></div><span class="st">Aktif · jatah gratis harian</span></div>
+    <div class="lembar lapis-baris frag" style="--w:var(--society)"><div><span class="tg">Lapis dua</span><h3>Claude</h3></div><div><p class="ket">Sudah terpasang di kode, menyala bila kunci API dipasang.</p><div class="jalur-kecil"></div></div><span class="st">Opsional · belum aktif</span></div>
+  </div>
+  <p class="sumber">Pengunjung bisa memilih otaknya, atau membandingkan semuanya sekaligus. Jawaban naskah selalu ikut dikirim sebagai pijakan.</p>
+  <div class="catatan">Kuncinya: model tidak menjawab dari nol. Setiap pertanyaan dikirim bersama jawaban naskah dari panduan resmi, jadi model menjelaskan ulang, bukan mengarang aturan. Kalau model gagal, yang tampil jawaban naskah.</div>
+</section>
+
+<!-- 14 ─ Batas -->
+<section class="slide" data-judul="Batas yang dipegang" data-bab="3" style="--bab:var(--society)">
+  <p class="alis"><i></i>Diwarisi dari aturan GenAI di panduan</p>
+  <h2>Batas yang dipegang Shelbot</h2>
+  <div class="aturan">
+    <div class="lembar frag"><div class="no">1</div><h3>Tidak punya suara</h3><p class="kecil">Tidak memilih proyek prioritas dan tidak menetapkan biaya. Keputusan dikembalikan ke kelima peran.</p></div>
+    <div class="lembar frag"><div class="no">2</div><h3>Dijatah</h3><p class="kecil">Dua pemakaian inti gratis (Fase 1 dan Fase 4). Selebihnya membayar GenAI Access Token.</p></div>
+    <div class="lembar frag"><div class="no">3</div><h3>Terbuka</h3><p class="kecil">Prompt dan keluaran ditampilkan terbuka, termasuk prompt di balik setiap gambar.</p></div>
+    <div class="lembar frag"><div class="no">4</div><h3>Tetap di dunia permainan</h3><p class="kecil">Isu Samarinda boleh. Pertanyaan di luar itu ditolak, tanpa diam-diam tetap dijawab.</p></div>
+  </div>
+  <div class="catatan">Batas ini bukan buatan kami; ini aturan GenAI dari panduan permainan, kami terapkan juga di situs. Nomor empat penting: saat uji, model sempat menolak pertanyaan Piala Dunia tapi tetap menyebut juaranya. Itu sudah dilarang di instruksinya.</div>
+</section>
+
+<!-- 15 ─ Akurasi -->
+<section class="slide" data-judul="Uji akurasi" data-bab="3" style="--bab:var(--society)">
+  <p class="alis"><i></i>Uji akurasi · 28 soal dari panduan resmi</p>
+  <h2>Diukur dulu, baru dipercaya</h2>
+  <div class="grafik" id="grafik"></div>
+  <p class="sumber">Uji 28 September 2026: 23 soal fakta, 2 soal isu Samarinda, 3 soal di luar lingkup. Llama 3.3 70B sesudah perbaikan: 10 dari 10 soal yang sebelumnya gagal kini lulus.</p>
+  <div class="catatan">Sebelum perbaikan, mesin naskah hanya lulus 14 dari 23 soal fakta. Kesalahannya kebanyakan soal durasi dan kata kunci yang salah sasaran. Sesudah perbaikan 23 dari 23, dan semua soal di luar lingkup ditolak. Ini dijalankan ulang dengan skrip, jadi bisa diulang setiap kali naskah berubah.</div>
+</section>
+
+<!-- 16 ─ Studio -->
+<section class="slide" data-judul="Studio Fase 2" data-bab="3" style="--bab:var(--society)">
+  <p class="alis"><i></i>Studio Fase 2 · gambar dan prediksi</p>
+  <div style="display:grid;grid-template-columns:1.15fr .85fr;gap:48px;align-items:start">
+    <div>
+      <h2 style="font-size:46px">Dari cerita siswa ke Samarinda 2045</h2>
+      <div class="masukan">
+        <div><span>Masa lalu</span>Banjir sering terjadi dan banyak lubang bekas tambang.</div>
+        <div><span>Tren sekarang</span>Ponton batu bara makin ramai, dan pelajar mulai peduli sampah.</div>
+        <div><span>Tindakan</span>Membuat bank sampah sekolah dan kampanye sungai bersih.</div>
+      </div>
+      <ol class="linimasa">
+        <li class="frag"><b>2030</b><p>Bank sampah sekolah berhasil mengurangi sampah yang dibuang ke sungai.</p></li>
+        <li class="frag"><b>2040</b><p>Tambang di sekitar Mahakam mulai berkurang, dan reklamasi lahan bekas tambang dikembangkan.</p></li>
+        <li class="frag"><b>2045</b><p>Samarinda lebih hijau dan bersih, dengan Sungai Mahakam yang jernih.</p></li>
+      </ol>
+    </div>
+    <figure class="frag"><div class="foto-ai"><img src="contoh-studio.jpg" alt="Ilustrasi buatan AI: Transformative Future untuk Samarinda 2045, sungai jernih dan kota hijau"></div>
+      <figcaption class="mini" style="margin-top:10px">Contoh keluaran nyata, uji tayang 1 Okt 2026, skenario Transformative. Teks diringkas dari jawaban Llama 3.3 70B; gambar oleh Flux, bertanda AI.</figcaption></figure>
+  </div>
+  <div class="catatan">Fitur ini permintaan klien. Siswa menulis apa yang terjadi di masa lalu, tren yang mereka lihat, dan tindakan yang ingin mereka lakukan. Shelbot menyusun linimasa 2030, 2040, 2045 plus satu peluang, satu risiko, dan satu asumsi, persis keluaran wajib Fase 2. Lalu adegan 2045-nya bisa langsung digambar. Selalu bertanda: satu kemungkinan, bukan ramalan.</div>
+</section>
+
+<!-- 17 ─ Bab 4 -->
+<section class="slide bab-slide" data-judul="Bab 4 · Di balik layar" data-bab="4" style="--bab:var(--economy)">
+  <div class="bab-isi"><p class="bab-no">BAB 04</p><h2>Di balik layar</h2><p>Bagaimana situs ini berjalan, menjaga data siswa, dan diuji.</p></div>
+  <svg class="ombak" viewBox="0 0 1600 180" preserveAspectRatio="none"><path d="M0 60 C 300 20, 500 110, 800 70 S 1300 20, 1600 70"/><path d="M0 110 C 300 70, 500 160, 800 120 S 1300 70, 1600 120"/></svg>
+  <div class="catatan">Bagian terakhir: teknis, privasi, dan kualitas.</div>
+</section>
+
+<!-- 18 ─ Arsitektur -->
+<section class="slide" data-judul="Arsitektur" data-bab="4" style="--bab:var(--economy)">
+  <p class="alis"><i></i>Arsitektur</p>
+  <h2>Situs statis, satu layanan kecil untuk AI</h2>
+  <div class="arsitek">
+    <svg viewBox="0 0 1408 520" aria-hidden="true"><path d="M350 250 C 450 250, 470 110, 560 110"/><path d="M350 270 C 450 270, 470 400, 560 400"/><path d="M890 400 C 960 400, 980 400, 1050 400"/></svg>
+    <div class="lembar simpul" style="left:0;top:190px"><span class="tg">Peramban</span><h3>Siswa dan guru</h3><p>Desktop atau ponsel. Mode Naskah berjalan di sini tanpa server.</p></div>
+    <div class="lembar simpul" style="left:560px;top:30px"><span class="tg">GitHub Pages</span><h3>Situs</h3><p>Next.js 16, keluaran statis. 12 halaman, dua bahasa.</p></div>
+    <div class="lembar simpul" style="left:560px;top:320px"><span class="tg">Cloudflare Worker</span><h3>Shelbot+</h3><p>Batas per alamat IP: 8 pertanyaan dan 3 gambar per menit.</p></div>
+    <div class="lembar simpul" style="left:1050px;top:300px;width:358px"><span class="tg">Workers AI</span><h3>Model</h3><p>Llama Guard menyaring. Llama 3.3 70B menjawab dan memprediksi. Flux menggambar.</p></div>
+  </div>
+  <p class="sumber">Jatah gratis Workers AI 10.000 Neuron per hari. Bila habis di paket gratis, permintaan berhenti dan tidak menagih.</p>
+  <div class="catatan">Situsnya sendiri hanya berkas statis, jadi murah dan cepat. Satu-satunya bagian yang berjalan di server adalah Worker kecil di Cloudflare untuk AI. Semuanya di akun klien sendiri.</div>
+</section>
+
+<!-- 19 ─ Privasi -->
+<section class="slide" data-judul="Privasi dan keamanan" data-bab="4" style="--bab:var(--economy)">
+  <p class="alis"><i></i>Privasi dan keamanan</p>
+  <h2>Pengguna utamanya pelajar. Jadi datanya tidak disimpan.</h2>
+  <div class="grid2" style="align-items:start;gap:60px">
+    <ul style="display:grid;gap:18px;padding-left:24px">
+      <li class="frag">Pertanyaan, isian prediksi, dan gambar <b>tidak disimpan</b>.</li>
+      <li class="frag">Setiap teks diperiksa <b>Llama Guard</b> sebelum dijawab atau digambar.</li>
+      <li class="frag">Gambar selalu bertanda <b>GAMBAR AI · BUKAN FOTO SAMARINDA</b>, juga di berkas unduhannya.</li>
+    </ul>
+    <ul style="display:grid;gap:18px;padding-left:24px">
+      <li class="frag">Mode Naskah tidak mengirim apa pun ke server.</li>
+      <li class="frag">Huruf disajikan dari situs sendiri, bukan dari Google.</li>
+      <li class="frag">Halaman privasi menjelaskan semua ini dalam bahasa sehari-hari.</li>
+    </ul>
+  </div>
+  <div class="catatan">Pengguna utamanya anak sekolah, jadi kami memilih tidak menyimpan apa pun. Setiap fitur yang mengirim data ke server dijelaskan di halaman privasi, termasuk fitur prediksi yang baru.</div>
+</section>
+
+<!-- 20 ─ Kualitas -->
+<section class="slide" data-judul="Kualitas" data-bab="4" style="--bab:var(--economy)">
+  <p class="alis"><i></i>Uji otomatis di peramban</p>
+  <h2>Diuji di layar yang dipakai siswa</h2>
+  <div class="grid4" style="margin-top:34px">
+    <div class="angka c4"><span class="n" data-hitung="48">48</span><span class="l">tampilan diperiksa: 12 halaman × 2 bahasa × desktop dan ponsel, 0 temuan</span></div>
+    <div class="angka c1"><span class="n">32/32</span><span class="l">uji revisi klien 1 Oktober lulus</span></div>
+    <div class="angka c3"><span class="n">23/23</span><span class="l">soal fakta dijawab benar oleh mesin naskah</span></div>
+    <div class="angka c2"><span class="n">0</span><span class="l">galat JavaScript di seluruh uji</span></div>
+  </div>
+  <p class="lead" style="margin-top:50px">Yang diperiksa: tautan rusak, halaman yang bergeser ke samping di ponsel, gambar yang gagal dimuat, dan galat skrip.</p>
+  <p class="sumber">Playwright dengan Microsoft Edge. Uji Langkah 06 (28 Sep 2026) dan uji revisi (1 Okt 2026).</p>
+  <div class="catatan">Uji ini dijalankan otomatis setiap kali ada perubahan besar, sebelum terbit. Itu yang membuat kami menemukan, misalnya, panel dasbor yang menimpa teks dan tangan maskot yang terpotong.</div>
+</section>
+
+<!-- 21 ─ Langkah -->
+<section class="slide" data-judul="Langkah berikutnya" data-bab="4" style="--bab:var(--economy)">
+  <p class="alis"><i></i>Langkah berikutnya</p>
+  <h2>Yang masih terbuka</h2>
+  <ol class="langkah">
+    <li class="frag"><div><h3>Selaraskan panduan dengan empat skenario</h3><p>Situs kini memakai Preferred Future di Fase 2; panduan resmi masih menyebut tiga.</p></div></li>
+    <li class="frag"><div><h3>Data dari playtesting kelas</h3><p>Pertanyaan siswa yang nyata menjadi bahan naskah dan uji akurasi berikutnya.</p></div></li>
+    <li class="frag"><div><h3>Uji ulang penuh Llama</h3><p>Seluruh 28 soal untuk kedua model, sesudah perbaikan naskah.</p></div></li>
+    <li class="frag"><div><h3>Claude, bila dibutuhkan</h3><p>Diaktifkan dengan kuota harian, hanya kalau mutu Llama dirasa kurang.</p></div></li>
+  </ol>
+  <div class="catatan">Yang paling mendesak nomor satu: panduan dan situs harus bicara hal yang sama soal jumlah skenario. Sisanya bergantung pada playtesting.</div>
+</section>
+
+<!-- 22 ─ Penutup -->
+<section class="slide" data-judul="Penutup" data-bab="4" style="--bab:var(--economy)">
+  <div class="pembuka" style="grid-template-columns:1.2fr .8fr">
+    <div>
+      <p class="alis" style="color:var(--sungai)"><i></i>Futures in Action · Samarinda 2045 Edition</p>
+      <h1 style="font-size:76px">Amati. Bayangkan. Pilih. Putuskan. Berkolaborasi. Bertindak.</h1>
+      <p class="lead" style="margin-top:30px">Coba situsnya, tanya Shelbot, atau mainkan mini game-nya.</p>
+      <p class="mono" style="margin-top:22px;font-size:24px;color:var(--tinta)">shellyefwinda.github.io/shelbot</p>
+    </div>
+    <div style="display:grid;justify-items:center;gap:18px"><div id="qr" aria-label="Kode QR menuju situs"></div><div style="width:260px"><svg viewBox="50 0 90 182" role="img" aria-label="Hakam, maskot Samarinda 2045"><defs><linearGradient id="mk-air" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="var(--color-aqua)"></stop><stop offset="1" stop-color="var(--color-mint)"></stop></linearGradient><linearGradient id="mk-luruh" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#fff" stop-opacity="0"></stop><stop offset="0.16" stop-color="#fff" stop-opacity="1"></stop><stop offset="0.84" stop-color="#fff" stop-opacity="1"></stop><stop offset="1" stop-color="#fff" stop-opacity="0"></stop></linearGradient><mask id="mk-tepi" maskUnits="userSpaceOnUse" x="50" y="0" width="90" height="222"><rect x="50" y="0" width="90" height="222" fill="url(#mk-luruh)"></rect></mask><linearGradient id="mk-manik" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="var(--color-ember)"></stop><stop offset="1" stop-color="var(--color-rose)"></stop></linearGradient></defs><g><g class="mk-goyang" style="transform:translateX(0px)"><g transform="translate(78 0)"><line x1="38" y1="94" x2="45" y2="120" stroke="#243040" stroke-width="4" stroke-linecap="round"></line><circle cx="46" cy="122" r="3.4" fill="#e9c19f"></circle><g class="mk-bulu"><path d="M14 56 C 10 44, 12 37, 16 33 C 20 39, 20 48, 18 57 Z" fill="var(--bg-raised)" stroke="#243040" stroke-width="1.4" stroke-linejoin="round"></path></g><path d="M6 108 C 6 92, 13 84, 24 84 C 35 84, 42 92, 42 108 L42 148 L6 148 Z" fill="var(--color-future)" opacity="0.9"></path><path d="M24 86 L24 148" stroke="var(--bg)" stroke-width="1.4" opacity="0.5"></path><path d="M10 96 q14 8 28 0 q-3 10 -14 10 q-11 0 -14 -10 Z" fill="url(#mk-manik)"></path><g stroke="#243040" stroke-width="4" stroke-linecap="round"><line x1="16" y1="148" x2="16" y2="170"></line><line x1="32" y1="148" x2="32" y2="170"></line></g><g class="mk-tunjuk mk-tunjuk-kiri"><line x1="8" y1="98" x2="-12" y2="92" stroke="#243040" stroke-width="4" stroke-linecap="round"></line><circle cx="-14" cy="91" r="3.4" fill="#e9c19f"></circle><line x1="-16" y1="90" x2="-24" y2="88" stroke="#e9c19f" stroke-width="2.6" stroke-linecap="round"></line></g><path d="M8 66 C 8 54, 15 48, 24 48 C 33 48, 40 54, 40 66 L40 74 C 40 82, 33 88, 24 88 C 15 88, 8 82, 8 74 Z" fill="#e9c19f"></path><path d="M6 68 C 4 50, 13 42, 24 42 C 35 42, 44 50, 42 68 C 38 58, 34 54, 24 54 C 14 54, 10 58, 6 68 Z" fill="#161f28"></path><path d="M7 62 q17 -8 34 0 l0 6 q-17 -7 -34 0 Z" fill="url(#mk-manik)"></path><g class="mk-kedip-b" fill="#161f28"><g class="mk-pupil" style="transform:translateX(0px)"><circle cx="18" cy="71" r="2.2"></circle><circle cx="30" cy="71" r="2.2"></circle></g></g><path d="M20 78 q4 4 8 0" fill="none" stroke="#161f28" stroke-width="1.5" stroke-linecap="round"></path></g></g></g></svg></div></div>
+  </div>
+  <div class="catatan">Tutup dengan enam kata kerja fase. Persilakan peserta memindai kode QR dan mencoba Shelbot langsung.</div>
+</section>
+
+<!-- sungai kemajuan -->
+<div id="sungai" aria-hidden="true">
+  <svg viewBox="0 0 1600 92" preserveAspectRatio="none">
+    <rect width="1600" height="92" fill="#0e4f52"/>
+    <path d="M0 40 C 200 28, 400 56, 600 42 S 1000 26, 1200 40 S 1500 54, 1600 42" fill="none" stroke="#7fd3e6" stroke-width="1.4" stroke-dasharray="5 10" opacity=".55"><animate attributeName="stroke-dashoffset" from="0" to="-150" dur="6s" repeatCount="indefinite"/></path>
+    <path d="M0 62 C 200 50, 400 78, 600 64 S 1000 48, 1200 62 S 1500 76, 1600 64" fill="none" stroke="#7fd3e6" stroke-width="1" stroke-dasharray="3 12" opacity=".35"><animate attributeName="stroke-dashoffset" from="0" to="-150" dur="9s" repeatCount="indefinite"/></path>
+    <g id="patok"></g>
+    <g id="ketinting">
+      <path d="M-26 36 C -22 46, -6 49, 0 49 C 6 49, 22 46, 26 36 C 14 41, -14 41, -26 36 Z" fill="#f0c48a"/>
+      <path d="M-26 36 C -14 41, 14 41, 26 36 L 24 34 L -24 34 Z" fill="#ffb45c" opacity=".8"/>
+      <path d="M26 39 L 38 31" stroke="#e6f3f1" stroke-width="1.6" stroke-linecap="round"/>
+    </g>
+  </svg>
+</div>
+<div id="judulbab"></div>
+<div id="nomor"></div>
+
+</div></div>
+<div id="ikhtisar" role="dialog" aria-label="Ikhtisar slide"></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<script>
+(function () {
+  "use strict";
+  var slides = Array.prototype.slice.call(document.querySelectorAll(".slide"));
+  var panggung = document.getElementById("panggung");
+  var kini = 0;
+  var gerakDikurangi = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  var cetak = /[?&]cetak\b/.test(location.search);
+  if (cetak) document.documentElement.classList.add("cetak");
+
+  function pas() { var s = Math.min(window.innerWidth / 1600, window.innerHeight / 900); panggung.style.transform = "scale(" + s + ")"; }
+  window.addEventListener("resize", pas); pas();
+
+  /* ---------- data dari situs dan panduan ---------- */
+  var FASE = [
+    ["Persiapan", "S", 10, 15], ["Amati Masa Kini", "01", 12, 15], ["Bayangkan Masa Depan", "02", 15, 18],
+    ["Pilih Masa Depan", "03", 10, 12], ["Ambil Keputusan", "04", 22, 28], ["Aksi Bersama", "05", 15, 18], ["Dampak Nyata", "06", 15, 18]
+  ];
+  var WARNA_FASE = ["#b9b1a0", "#16a06f", "#8b5cf6", "#f0a92a", "#2f7fe0", "#16a06f", "#8b5cf6"];
+  var MD = [
+    { k: "A", nama: "Expected Future", label: "Yang sudah berjalan", w: "#f0a92a", isi: "Kebiasaan dan kebijakan hari ini diteruskan apa adanya. Bukan untuk menakuti, tapi untuk menetapkan garis dasar pembanding." },
+    { k: "B", nama: "Alternative Future", label: "Yang bisa dibelokkan", w: "#2f7fe0", isi: "Beberapa keputusan diambil berbeda, dan arah kota bergeser. Paling mudah dibayangkan, dan karena itu paling ramai diperdebatkan." },
+    { k: "C", nama: "Preferred Future", label: "Yang kita inginkan", w: "#8b5cf6", isi: "Kota yang paling diinginkan bersama, disusun dari harapan kelima peran. Ia memberi arah, tapi tetap diuji: siapa yang diuntungkan, siapa yang menanggung biayanya." },
+    { k: "D", nama: "Transformative Future", label: "Yang menuntut susunan baru", w: "#16a06f", isi: "Cara kota bekerja diatur ulang, bukan diperbaiki sedikit-sedikit. Paling menjanjikan, sekaligus paling mahal untuk disepakati." }
+  ];
+  var IND = [["Lingkungan", "#16a06f"], ["Masyarakat", "#8b5cf6"], ["Ekonomi", "#f0a92a"], ["Kesiapan Masa Depan", "#2f7fe0"]];
+  var PROYEK = [
+    { kd: "P02", jd: "School Shade Garden", zona: "Hijau", d: [1, 1, 0, 0] },
+    { kd: "P05", jd: "Community Rain Garden", zona: "Hijau", d: [2, 1, -1, 1] },
+    { kd: "P09", jd: "Mahakam Microgrid Simulation", zona: "Energi", d: [0, 1, 1, 1] },
+    { kd: "P31", jd: "Riverbank Waste Monitoring", zona: "Sungai", d: [1, 0, 0, 1] }
+  ];
+  var HALAMAN = [
+    ["Beranda", "", "Pintu masuk: masa depan, indikator, papan."], ["Permainan", "permainan", "Fase, peran, indikator, komponen, syarat menang."],
+    ["Aturan Ringkas", "aturan", "Lembar empat halaman A4 untuk dicetak."], ["Dasbor", "dasbor", "Pilih proyek, lihat indikator bergerak."],
+    ["Katalog Kartu", "kartu", "Seluruh 184 kartu, bisa disaring."], ["Samarinda", "samarinda", "Peta papan delapan zona dan isu kota."],
+    ["Shelbot", "shelbot", "Tanya jawab dan Studio Fase 2."], ["Mini Game", "mini-game", "Jaga Samarinda!, tiga level berwaktu."],
+    ["Fasilitator", "fasilitator", "Panduan guru, fase demi fase."], ["Kontak", "kontak", "WhatsApp dan surel untuk sesi kelas."],
+    ["Privasi", "privasi", "Apa yang dikirim, apa yang tidak."], ["Gaya", "gaya", "Sistem rupa: huruf, warna, komponen."]
+  ];
+  var DEMO = [
+    ["Beranda", "", "Empat masa depan dan papan delapan zona."], ["Dasbor indikator", "dasbor/", "Pilih dua Mini-Project."],
+    ["Shelbot dan Studio", "shelbot/#studio", "Tanya jawab, gambar, prediksi."], ["Mini game", "mini-game/", "Tiga level berwaktu."]
+  ];
+  var MG = [["Membuang sampah ke Sungai Mahakam", "ancam"], ["Menanam pohon di halaman sekolah", "dukung"], ["Energi matahari", "dukung"], ["Batu bara", "ancam"]];
+  var AKURASI = [
+    ["Fakta tercakup, mesin naskah", 66, 100, "%"], ["Soal fakta lulus penuh, mesin naskah", 14 / 23 * 100, 100, "", "14/23", "23/23"],
+    ["Menolak soal di luar lingkup", 67, 100, "%"]
+  ];
+
+  /* ---------- skala waktu fase ---------- */
+  (function () {
+    var wadah = document.getElementById("fase"), MAKS = 30;
+    FASE.forEach(function (f, i) {
+      var b = document.createElement("div"); b.className = "fase-baris";
+      b.innerHTML = '<div class="nm"><span>' + f[1] + "</span>" + f[0] + '</div><div class="fase-rel"><i class="rentang" style="--w:' + WARNA_FASE[i] +
+        ";left:0;width:" + (f[3] / MAKS * 100) + "%;--padat:" + (f[2] / f[3] * 100) + "%;transition-delay:" + (i * 70) + 'ms"></i><span class="waktu" style="left:calc(' +
+        (f[3] / MAKS * 100) + '% + 12px)">' + f[2] + "–" + f[3] + " mnt</span></div>";
+      wadah.appendChild(b);
+    });
+    var sumbu = document.getElementById("sumbu-fase");
+    [0, 5, 10, 15, 20, 25, 30].forEach(function (m) { var s = document.createElement("span"); s.style.left = (m / MAKS * 100) + "%"; s.textContent = m + " mnt"; sumbu.appendChild(s); });
+  })();
+
+  /* ---------- empat masa depan ---------- */
+  (function () {
+    var svg = document.getElementById("cabang"), pilih = document.getElementById("md-pilih"), cerita = document.getElementById("md-cerita");
+    var ujung = [58, 132, 206, 280], ke = 2, NS = "http://www.w3.org/2000/svg";
+    function el(n, a) { var e = document.createElementNS(NS, n); for (var k in a) e.setAttribute(k, a[k]); return e; }
+    svg.appendChild(el("line", { x1: 60, y1: 318, x2: 600, y2: 318, stroke: "rgba(16,32,30,.25)" }));
+    var t1 = el("text", { x: 60, y: 336, "font-size": 12, fill: "#6b7873", "font-family": "ui-monospace,monospace" }); t1.textContent = "HARI INI"; svg.appendChild(t1);
+    var t2 = el("text", { x: 600, y: 336, "font-size": 12, fill: "#6b7873", "text-anchor": "end", "font-family": "ui-monospace,monospace" }); t2.textContent = "2045"; svg.appendChild(t2);
+    var jalur = [], titik = [];
+    MD.forEach(function (m, i) {
+      var d = "M60 170 C 240 170, 300 " + ujung[i] + ", 470 " + ujung[i] + " L 560 " + ujung[i];
+      var g = el("g", { style: "cursor:pointer" });
+      g.appendChild(el("path", { d: d, stroke: "transparent", "stroke-width": 26, fill: "none" }));
+      var p = el("path", { d: d, stroke: m.w, fill: "none", "stroke-linecap": "round" }); g.appendChild(p); jalur.push(p);
+      var c = el("circle", { cx: 560, cy: ujung[i], stroke: m.w, "stroke-width": 2.5 }); g.appendChild(c); titik.push(c);
+      var t = el("text", { x: 586, y: ujung[i] + 5, "font-size": 15, "font-weight": 700, fill: "#10201e", "font-family": "ui-monospace,monospace" }); t.textContent = m.k; g.appendChild(t);
+      g.addEventListener("click", function () { set(i); });
+      svg.appendChild(g);
+      var b = document.createElement("button"); b.type = "button"; b.style.setProperty("--w", m.w);
+      b.innerHTML = '<b class="h">' + m.k + '</b><span><span class="nm" style="display:block">' + m.nama + '</span><span class="lb">' + m.label + "</span></span>";
+      b.addEventListener("click", function () { set(i); }); pilih.appendChild(b);
+    });
+    svg.appendChild(el("circle", { cx: 60, cy: 170, r: 10, fill: "#10201e" }));
+    function set(i) {
+      ke = i;
+      MD.forEach(function (m, j) {
+        var on = j === i;
+        jalur[j].setAttribute("stroke-width", on ? 5 : 1.8); jalur[j].setAttribute("opacity", on ? 1 : .35);
+        titik[j].setAttribute("r", on ? 12 : 7); titik[j].setAttribute("fill", on ? m.w : "#fbf9f4");
+        pilih.children[j].setAttribute("aria-pressed", on ? "true" : "false");
+      });
+      cerita.innerHTML = '<p><b style="color:' + MD[i].w + '">' + MD[i].nama + ".</b> " + MD[i].isi + "</p>";
+    }
+    set(ke);
+  })();
+
+  /* ---------- indikator ---------- */
+  (function () {
+    var wadah = document.getElementById("ind"), daftar = document.getElementById("proyek"), dipilih = [];
+    IND.forEach(function (n) {
+      var r = document.createElement("div"); r.className = "ind-baris"; r.style.setProperty("--w", n[1]);
+      r.innerHTML = '<span class="nm"><i></i>' + n[0] + '</span><div class="ind-rel">' + new Array(11).join("<s></s>") + '</div><span class="v">5</span>';
+      wadah.appendChild(r);
+    });
+    PROYEK.forEach(function (p, i) {
+      var b = document.createElement("button"); b.type = "button"; b.setAttribute("aria-pressed", "false");
+      b.innerHTML = '<span class="kd">' + p.kd + " · " + p.zona + '</span><span class="jd">' + p.jd + '</span><span class="dp">' +
+        p.d.map(function (v, k) { return '<span style="--w:' + IND[k][1] + '">' + (v > 0 ? "+" + v : v) + "</span>"; }).join("") + "</span>";
+      b.addEventListener("click", function () {
+        var at = dipilih.indexOf(i);
+        if (at >= 0) dipilih.splice(at, 1); else { if (dipilih.length === 2) dipilih.shift(); dipilih.push(i); }
+        hitung();
+      });
+      daftar.appendChild(b);
+    });
+    function hitung() {
+      var nilai = [5, 5, 5, 5];
+      dipilih.forEach(function (i) { PROYEK[i].d.forEach(function (v, k) { nilai[k] = Math.max(0, Math.min(10, nilai[k] + v)); }); });
+      Array.prototype.forEach.call(wadah.children, function (r, k) {
+        Array.prototype.forEach.call(r.querySelectorAll("s"), function (s, j) { s.className = j < nilai[k] ? "isi" : ""; });
+        var v = r.querySelector(".v"); v.textContent = nilai[k]; v.className = "v" + (nilai[k] > 5 ? " naik" : nilai[k] < 5 ? " turun" : "");
+      });
+      Array.prototype.forEach.call(daftar.children, function (b, i) { b.setAttribute("aria-pressed", dipilih.indexOf(i) >= 0 ? "true" : "false"); });
+    }
+    hitung();
+  })();
+
+  /* ---------- peta situs ---------- */
+  (function () {
+    var w = document.getElementById("halaman");
+    HALAMAN.forEach(function (h) {
+      var a = document.createElement("a"); a.href = "../id/" + (h[1] ? h[1] + "/" : ""); a.target = "_blank"; a.rel = "noopener";
+      a.innerHTML = '<span class="jd">' + h[0] + "<span>/" + (h[1] || "") + '</span></span><span class="gn">' + h[2] + "</span>";
+      w.appendChild(a);
+    });
+  })();
+
+  /* ---------- demo langsung: dimuat saat slidenya dibuka ---------- */
+  var demoKe = 0;
+  (function () {
+    var tab = document.getElementById("demo-tab");
+    DEMO.forEach(function (d, i) {
+      var b = document.createElement("button"); b.type = "button";
+      b.innerHTML = d[0] + '<div class="ket">' + d[2] + "</div>";
+      b.addEventListener("click", function () { muatDemo(i); });
+      tab.appendChild(b);
+    });
+  })();
+  function muatDemo(i) {
+    demoKe = i;
+    var f = document.getElementById("demo"), jalur = "../id/" + DEMO[i][1];
+    f.src = jalur;
+    document.getElementById("demo-alamat").textContent = "shellyefwinda.github.io/shelbot/id/" + DEMO[i][1];
+    Array.prototype.forEach.call(document.getElementById("demo-tab").children, function (b, j) { b.setAttribute("aria-pressed", j === i ? "true" : "false"); });
+  }
+
+  /* ---------- mini game ---------- */
+  (function () {
+    var ke = 0, skor = 0, kartu = document.getElementById("mg-kartu"), umpan = document.getElementById("mg-umpan");
+    function tampil() {
+      if (ke >= MG.length) { kartu.textContent = "Selesai. Skor " + skor + "."; document.getElementById("mg-ke").textContent = "Ulangi: klik kartu"; return; }
+      kartu.textContent = MG[ke][0]; document.getElementById("mg-ke").textContent = (ke + 1) + " / " + MG.length;
+    }
+    document.querySelectorAll(".mg-tombol button").forEach(function (b) {
+      b.addEventListener("click", function () {
+        if (ke >= MG.length) return;
+        var benar = b.getAttribute("data-j") === MG[ke][1];
+        skor += benar ? 100 : -25;
+        umpan.textContent = benar ? "Tepat. +100" : "Coba lihat lagi dampaknya. −25";
+        umpan.style.color = benar ? "#16a06f" : "#c2412b";
+        document.getElementById("mg-skor").textContent = "Skor " + skor;
+        ke++; tampil();
+      });
+    });
+    kartu.addEventListener("click", function () { if (ke >= MG.length) { ke = 0; skor = 0; umpan.textContent = ""; document.getElementById("mg-skor").textContent = "Skor 0"; tampil(); } });
+    tampil();
+  })();
+
+  /* ---------- grafik akurasi, skala 0-100 ---------- */
+  (function () {
+    var w = document.getElementById("grafik");
+    AKURASI.forEach(function (a) {
+      var r = document.createElement("div"); r.className = "gr-baris";
+      var lblS = a[4] || Math.round(a[1]) + a[3], lblD = a[5] || a[2] + a[3];
+      r.innerHTML = '<div class="jd"><b>' + a[0] + '</b><span>skala 0–100%</span></div>' +
+        '<div class="gr-batang sebelum"><span class="lbl">Sebelum perbaikan</span><i data-w="' + a[1] + '"></i><em>' + lblS + "</em></div>" +
+        '<div class="gr-batang sesudah"><span class="lbl">Sesudah perbaikan</span><i data-w="' + a[2] + '"></i><em>' + lblD + "</em></div>";
+      w.appendChild(r);
+    });
+  })();
+  function isiGrafik(sl, on) { sl.querySelectorAll(".gr-batang i").forEach(function (i) { i.style.width = on ? i.getAttribute("data-w") + "%" : "0"; }); }
+
+  /* ---------- QR ---------- */
+  try { new QRCode(document.getElementById("qr"), { text: "https://shellyefwinda.github.io/shelbot/", width: 440, height: 440, colorDark: "#10201e", colorLight: "#ffffff", correctLevel: QRCode.CorrectLevel.M }); }
+  catch (e) { document.getElementById("qr").textContent = "shellyefwinda.github.io/shelbot"; }
+
+  /* ---------- sungai kemajuan ---------- */
+  var patok = document.getElementById("patok"), kapal = document.getElementById("ketinting");
+  var WARNA_BAB = ["#e6f3f1", "#16a06f", "#2f7fe0", "#8b5cf6", "#f0a92a"];
+  var NAMA_BAB = ["Futures in Action", "Bab 1 · Permainannya", "Bab 2 · Situsnya", "Bab 3 · Shelbot", "Bab 4 · Di balik layar"];
+  /* jalur kapal di antara label bab (kiri) dan nomor slide (kanan) */
+  function xSlide(i) { return 330 + (1390 - 330) * (i / (slides.length - 1)); }
+  slides.forEach(function (s, i) {
+    var bab = +s.getAttribute("data-bab");
+    var c = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+    c.setAttribute("cx", xSlide(i)); c.setAttribute("cy", 72); c.setAttribute("r", s.classList.contains("bab-slide") ? 5 : 2.5);
+    c.setAttribute("fill", WARNA_BAB[bab]); c.setAttribute("opacity", ".9"); patok.appendChild(c);
+  });
+
+  /* ---------- angka menghitung ---------- */
+  function hitungNaik(sl) {
+    if (gerakDikurangi || cetak) return;
+    sl.querySelectorAll("[data-hitung]").forEach(function (el) {
+      var ke = parseFloat(el.getAttribute("data-hitung")), t0 = null;
+      function langkah(ts) { if (!t0) t0 = ts; var k = Math.min(1, (ts - t0) / 1100), e = 1 - Math.pow(1 - k, 3);
+        el.textContent = Math.round(ke * e); if (k < 1) requestAnimationFrame(langkah); }
+      requestAnimationFrame(langkah);
+    });
+  }
+
+  /* ---------- navigasi ---------- */
+  function frag(i) { return slides[i].querySelectorAll(".frag"); }
+  function tampil(i) {
+    i = Math.max(0, Math.min(slides.length - 1, i));
+    var lama = slides[kini];
+    if (i !== kini) { lama.classList.remove("aktif"); lama.classList.add("lewat"); isiGrafik(lama, false); var l = lama; setTimeout(function () { l.classList.remove("lewat"); }, 900); }
+    kini = i; var sl = slides[kini];
+    sl.classList.remove("lewat"); sl.classList.add("aktif");
+    if (cetak) frag(kini).forEach(function (f) { f.classList.add("on"); });
+    hitungNaik(sl); setTimeout(function () { isiGrafik(sl, true); }, 250);
+    if (sl.querySelector("#demo") && !document.getElementById("demo").getAttribute("src")) muatDemo(demoKe);
+    kapal.setAttribute("transform", "translate(" + xSlide(kini) + " 4)");
+    var bab = +sl.getAttribute("data-bab");
+    document.getElementById("judulbab").textContent = NAMA_BAB[bab];
+    document.getElementById("nomor").textContent = String(kini + 1).padStart(2, "0") + " / " + slides.length;
+    try { history.replaceState(null, "", "#" + (kini + 1)); } catch (e) {}
+    document.dispatchEvent(new CustomEvent("gantislide", { detail: kini }));
+    Array.prototype.forEach.call(document.getElementById("ikhtisar").children, function (d, j) { d.classList.toggle("kini", j === kini); });
+  }
+  function maju() { var f = frag(kini); for (var k = 0; k < f.length; k++) if (!f[k].classList.contains("on")) { f[k].classList.add("on"); return; } tampil(kini + 1); }
+  function mundur() { var f = frag(kini), on = []; for (var k = 0; k < f.length; k++) if (f[k].classList.contains("on")) on.push(f[k]);
+    if (on.length) { on[on.length - 1].classList.remove("on"); return; } tampil(kini - 1); }
+  window.__deck = { tampil: tampil, jumlah: slides.length };
+
+  document.addEventListener("keydown", function (e) {
+    if (e.target && /INPUT|TEXTAREA/.test(e.target.tagName)) return;
+    if (["ArrowRight", "PageDown", " ", "Enter"].indexOf(e.key) >= 0) { e.preventDefault(); maju(); }
+    else if (["ArrowLeft", "PageUp", "Backspace"].indexOf(e.key) >= 0) { e.preventDefault(); mundur(); }
+    else if (e.key === "Home") tampil(0); else if (e.key === "End") tampil(slides.length - 1);
+    else if (e.key === "f" || e.key === "F") { try { if (!document.fullscreenElement) document.documentElement.requestFullscreen(); else document.exitFullscreen(); } catch (er) {} }
+    else if (e.key === "o" || e.key === "O" || e.key === "Escape") document.getElementById("ikhtisar").classList.toggle("on", e.key !== "Escape" && !document.getElementById("ikhtisar").classList.contains("on"));
+    else if (e.key === "p" || e.key === "P") presenter();
+  });
+  document.getElementById("vp").addEventListener("click", function (e) {
+    if (e.target.closest("button, a, .interaktif, svg#cabang, #qr")) return;
+    if (e.clientX > window.innerWidth * 0.3) maju(); else mundur();
+  });
+  /* geser di ponsel */
+  var x0 = null;
+  document.addEventListener("touchstart", function (e) { x0 = e.touches[0].clientX; }, { passive: true });
+  document.addEventListener("touchend", function (e) { if (x0 === null) return; var dx = e.changedTouches[0].clientX - x0; if (Math.abs(dx) > 50) { dx < 0 ? maju() : mundur(); } x0 = null; });
+
+  var ik = document.getElementById("ikhtisar");
+  slides.forEach(function (s, i) {
+    var d = document.createElement("div");
+    d.innerHTML = "<b>" + (i + 1) + " · " + s.getAttribute("data-judul") + "</b>" + ((s.querySelector(".catatan") || {}).textContent || "").slice(0, 140) + "…";
+    d.onclick = function () { ik.classList.remove("on"); tampil(i); }; ik.appendChild(d);
+  });
+
+  function presenter() {
+    var w = window.open("", "presenter", "width=1100,height=720"); if (!w) return;
+    var data = slides.map(function (s) { return { t: s.getAttribute("data-judul"), n: (s.querySelector(".catatan") || {}).textContent || "" }; });
+    w.document.write("<!doctype html><title>Presenter</title><body style='font-family:Inter,Segoe UI,Arial;margin:0;background:#f4f0e7;color:#10201e'>" +
+      "<div style='display:flex;justify-content:space-between;padding:14px 22px;background:#0e4f52;color:#eef6f4'><b id='h'></b><span id='jam' style='font:700 26px ui-monospace,monospace'>00:00</span></div>" +
+      "<div id='n' style='padding:24px 28px;font-size:26px;line-height:1.5'></div><div id='nx' style='padding:0 28px;color:#45544f;font-size:18px'></div>" +
+      "<div style='padding:14px 28px;color:#6b7873;font-size:14px'>Tombol ← → bekerja di sini · jam mulai pada tombol pertama</div></body>");
+    var mulai = null;
+    function lukis(i) { w.document.getElementById("h").textContent = (i + 1) + " / " + data.length + " · " + data[i].t;
+      w.document.getElementById("n").textContent = data[i].n; w.document.getElementById("nx").textContent = i + 1 < data.length ? "Berikutnya: " + data[i + 1].t : ""; }
+    lukis(kini);
+    document.addEventListener("gantislide", function (e) { if (!w.closed) lukis(e.detail); });
+    w.document.addEventListener("keydown", function (e) { if (!mulai) mulai = Date.now();
+      if (["ArrowRight", " ", "PageDown"].indexOf(e.key) >= 0) maju(); if (["ArrowLeft", "PageUp"].indexOf(e.key) >= 0) mundur(); });
+    setInterval(function () { if (w.closed || !mulai) return; var s = Math.floor((Date.now() - mulai) / 1000);
+      w.document.getElementById("jam").textContent = String(Math.floor(s / 60)).padStart(2, "0") + ":" + String(s % 60).padStart(2, "0"); }, 500);
+  }
+
+  var h = parseInt((location.hash || "#1").slice(1), 10);
+  tampil(isNaN(h) ? 0 : h - 1);
+})();
+</script>
+</body>
+</html>
