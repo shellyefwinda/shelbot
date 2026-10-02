@@ -170,6 +170,21 @@ b,strong{color:var(--tinta);font-weight:650}
 .demo-tab button[aria-pressed="true"]{background:var(--tinta);color:var(--kertas);border-color:var(--tinta)}
 .demo-tab .ket{font:15px/1.4 var(--isi);color:var(--samar);margin-top:6px}
 
+/* Shelbot yang disematkan: halaman Shelbot asli di dalam bingkai,
+   dirender selebar desktop lalu diskalakan supaya tata letaknya utuh. */
+.sematan{position:relative;width:1000px;height:650px;border-radius:18px;overflow:hidden;border:1px solid var(--garis);
+  background:var(--permukaan);box-shadow:0 30px 60px -30px rgba(16,32,30,.5)}
+.sematan iframe{position:absolute;left:0;top:0;width:1250px;height:812px;border:0;transform:scale(.8);transform-origin:0 0;opacity:0;transition:opacity .4s var(--alir)}
+.sematan iframe.siap{opacity:1}
+.sematan .muat{position:absolute;inset:0;display:grid;place-items:center;font:600 18px var(--isi);color:var(--samar)}
+.contoh{display:grid;gap:10px;margin-top:26px}
+.contoh button{all:unset;cursor:pointer;padding:14px 18px;border-radius:12px;border:1px solid var(--garis);background:var(--permukaan);
+  font:500 18px/1.35 var(--isi);color:var(--tinta);transition:transform .15s var(--alir),border-color .2s}
+.contoh button:hover{border-color:var(--society)}
+.contoh button:active{transform:scale(.98)}
+.contoh button span{display:block;font:600 12px var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--society);margin-bottom:4px}
+.contoh button.utama{background:var(--tinta);color:var(--kertas);border-color:var(--tinta)}
+
 /* mini game */
 .mg-kartu{height:170px;display:grid;place-items:center;text-align:center;padding:24px;font:600 30px/1.25 var(--isi);color:var(--tinta)}
 .mg-tombol{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:16px}
@@ -538,6 +553,26 @@ kbd{font:600 12px var(--mono);border:1px solid var(--garis);border-bottom-width:
   <div class="catatan">Batas ini bukan buatan kami; ini aturan GenAI dari panduan permainan, kami terapkan juga di situs. Nomor empat penting: saat uji, model sempat menolak pertanyaan Piala Dunia tapi tetap menyebut juaranya. Itu sudah dilarang di instruksinya.</div>
 </section>
 
+<!-- 14b ─ Coba langsung: tanya -->
+<section class="slide" data-judul="Coba langsung: tanya Shelbot" data-bab="3" style="--bab:var(--society)">
+  <div style="display:grid;grid-template-columns:1fr 1000px;gap:44px;align-items:center">
+    <div>
+      <p class="alis"><i></i>Coba langsung</p>
+      <h2 style="font-size:46px">Tanya Shelbot di sini</h2>
+      <p class="kecil">Shelbot yang sama dengan di situs: Llama 3.3 70B lewat Cloudflare, berpijak pada naskah panduan.</p>
+      <div class="contoh interaktif" data-untuk="tanya">
+        <button type="button" data-tanya="Apa itu Preferred Future?"><span>Aturan</span>Apa itu Preferred Future?</button>
+        <button type="button" data-tanya="Kenapa banjir di Samarinda sering terjadi?"><span>Isu kota</span>Kenapa banjir di Samarinda sering terjadi?</button>
+        <button type="button" data-tanya="Proyek mana yang sebaiknya kami pilih?"><span>Keputusan</span>Proyek mana yang sebaiknya kami pilih?</button>
+        <button type="button" data-tanya="Siapa juara Piala Dunia 2022?"><span>Di luar lingkup</span>Siapa juara Piala Dunia 2022?</button>
+      </div>
+    </div>
+    <div class="sematan interaktif"><div class="muat">Memuat Shelbot…</div><iframe data-sematan="tanya" title="Shelbot, tanya jawab"></iframe></div>
+  </div>
+  <p class="sumber">Klik di luar bingkai untuk kembali memakai tombol panah. Batas 8 pertanyaan per menit untuk satu jaringan, jadi satu ruangan berbagi jatah yang sama.</p>
+  <div class="catatan">Klik salah satu contoh di kiri, atau ketik sendiri di dalam bingkai. Perhatikan pertanyaan ketiga: Shelbot tidak memilihkan proyek, ia mengembalikan keputusan ke kelompok. Pertanyaan keempat ditolak karena di luar dunia permainan. Setelah mengetik di dalam bingkai, klik di luar bingkai dulu supaya panah kembali menggerakkan slide.</div>
+</section>
+
 <!-- 15 ─ Akurasi -->
 <section class="slide" data-judul="Uji akurasi" data-bab="3" style="--bab:var(--society)">
   <p class="alis"><i></i>Uji akurasi · 28 soal dari panduan resmi</p>
@@ -568,6 +603,24 @@ kbd{font:600 12px var(--mono);border:1px solid var(--garis);border-bottom-width:
       <figcaption class="mini" style="margin-top:10px">Contoh keluaran nyata, uji tayang 1 Okt 2026, skenario Transformative. Teks diringkas dari jawaban Llama 3.3 70B; gambar oleh Flux, bertanda AI.</figcaption></figure>
   </div>
   <div class="catatan">Fitur ini permintaan klien. Siswa menulis apa yang terjadi di masa lalu, tren yang mereka lihat, dan tindakan yang ingin mereka lakukan. Shelbot menyusun linimasa 2030, 2040, 2045 plus satu peluang, satu risiko, dan satu asumsi, persis keluaran wajib Fase 2. Lalu adegan 2045-nya bisa langsung digambar. Selalu bertanda: satu kemungkinan, bukan ramalan.</div>
+</section>
+
+<!-- 16b ─ Coba langsung: prediksi -->
+<section class="slide" data-judul="Coba langsung: prediksi" data-bab="3" style="--bab:var(--society)">
+  <div style="display:grid;grid-template-columns:1fr 1000px;gap:44px;align-items:center">
+    <div>
+      <p class="alis"><i></i>Coba langsung</p>
+      <h2 style="font-size:46px">Prediksi Samarinda 2045 bersama Shelbot</h2>
+      <p class="kecil">Isi tiga kolom di dalam bingkai, pilih skenario, lalu kirim. Adegan 2045-nya bisa langsung digambar.</p>
+      <div class="contoh interaktif" data-untuk="prediksi">
+        <button type="button" data-isi="contoh"><span>Langkah 1</span>Isi dengan contoh cerita siswa</button>
+        <button type="button" data-isi="kirim" class="utama"><span style="color:var(--ember)">Langkah 2</span>Kirim ke Shelbot</button>
+      </div>
+    </div>
+    <div class="sematan interaktif"><div class="muat">Memuat Studio…</div><iframe data-sematan="prediksi" title="Studio Fase 2, prediksi"></iframe></div>
+  </div>
+  <p class="sumber">Satu kemungkinan untuk dibahas, bukan ramalan. Tulisan tidak disimpan. Batas tiga gambar per menit.</p>
+  <div class="catatan">Mulai dengan Isi contoh, atau minta peserta mendiktekan apa yang mereka lihat di Samarinda. Setelah linimasa muncul, tekan Gambarkan Samarinda 2045 ini di dalam bingkai. Gambarnya butuh sekitar sepuluh detik.</div>
 </section>
 
 <!-- 17 ─ Bab 4 -->
@@ -834,6 +887,77 @@ kbd{font:600 12px var(--mono);border:1px solid var(--garis);border-bottom-width:
     Array.prototype.forEach.call(document.getElementById("demo-tab").children, function (b, j) { b.setAttribute("aria-pressed", j === i ? "true" : "false"); });
   }
 
+  /* ---------- Shelbot disematkan ---------- */
+  var HAL_SEMATAN = { tanya: "../id/shelbot/", prediksi: "../id/shelbot/" };
+  /* Gaya yang ditanam ke halaman Shelbot: satu panel dibentangkan memenuhi
+     bingkai, menutupi kepala, kaki, dan maskot halaman. Bisa karena deck dan
+     situs berada di asal yang sama. */
+  var GAYA_SEMATAN = {
+    tanya: ".obrolan{position:fixed!important;inset:0!important;z-index:2147483000!important;margin:0!important;border-radius:0!important;border:0!important;box-shadow:none!important;max-width:none!important;width:auto!important}" +
+      ".obrolan-isi{max-height:none!important}html,body{overflow:hidden!important}",
+    prediksi: "#studio{position:fixed!important;inset:0!important;z-index:2147483000!important;margin:0!important;padding:34px 40px!important;max-width:none!important;" +
+      "background:var(--bg)!important;overflow:auto!important;align-content:start}#studio .t-body.measure{display:none!important}html,body{overflow:hidden!important}"
+  };
+  /* Kepala situs, bilah gulir, dan kepala maskot yang mengintip berlapis di
+     atas panel, jadi disembunyikan langsung. */
+  var SEMBUNYI = "body>header,.progres-gulir,.intip-wadah,.sosok-akhir,body>footer{display:none!important}";
+  function siapkanSematan(f) {
+    var jenis = f.getAttribute("data-sematan");
+    f.addEventListener("load", function () {
+      try {
+        var d = f.contentDocument;
+        try { f.contentWindow.sessionStorage.setItem("sf-sapa-sudah", "1"); } catch (e) {}
+        var g = d.createElement("style"); g.textContent = SEMBUNYI + GAYA_SEMATAN[jenis]; d.head.appendChild(g);
+        if (jenis === "prediksi") {
+          var tunggu = 0, cari = setInterval(function () {
+            var tab = Array.prototype.find.call(d.querySelectorAll('#studio [role="tab"]'), function (b) { return /Prediksi/.test(b.textContent); });
+            if (tab || ++tunggu > 40) { clearInterval(cari); if (tab) tab.click(); f.classList.add("siap"); }
+          }, 150);
+        } else {
+          var tunggu2 = 0, cari2 = setInterval(function () {
+            if (d.querySelector(".obrolan") || ++tunggu2 > 40) { clearInterval(cari2); f.classList.add("siap"); }
+          }, 150);
+        }
+      } catch (e) { f.classList.add("siap"); }
+    });
+  }
+  document.querySelectorAll("iframe[data-sematan]").forEach(siapkanSematan);
+  function muatSematan(sl) {
+    sl.querySelectorAll("iframe[data-sematan]").forEach(function (f) {
+      if (!f.getAttribute("src")) f.src = HAL_SEMATAN[f.getAttribute("data-sematan")];
+    });
+  }
+  /* Mengisi kotak teks React dari luar: setter bawaan, lalu peristiwa input. */
+  function isiKotak(el, nilai) {
+    var w = el.ownerDocument.defaultView;
+    Object.getOwnPropertyDescriptor(w.HTMLTextAreaElement.prototype, "value").set.call(el, nilai);
+    el.dispatchEvent(new w.Event("input", { bubbles: true }));
+  }
+  function dokSematan(jenis) { var f = document.querySelector('iframe[data-sematan="' + jenis + '"]'); try { return f && f.contentDocument; } catch (e) { return null; } }
+  document.querySelectorAll('[data-untuk="tanya"] button').forEach(function (b) {
+    b.addEventListener("click", function () {
+      var d = dokSematan("tanya"), kotak = d && d.getElementById("tanya");
+      if (!kotak) return;
+      isiKotak(kotak, b.getAttribute("data-tanya"));
+      setTimeout(function () { if (kotak.form) kotak.form.requestSubmit(); }, 60);
+    });
+  });
+  var CONTOH_SISWA = {
+    "prediksi-lalu": "Banjir sering terjadi dan banyak lubang bekas tambang dibiarkan terbuka.",
+    "prediksi-kini": "Ponton batu bara makin ramai di Sungai Mahakam, dan pelajar mulai peduli sampah.",
+    "prediksi-aksi": "Membuat bank sampah sekolah dan kampanye sungai bersih setiap bulan."
+  };
+  document.querySelectorAll('[data-untuk="prediksi"] button').forEach(function (b) {
+    b.addEventListener("click", function () {
+      var d = dokSematan("prediksi"); if (!d) return;
+      if (b.getAttribute("data-isi") === "contoh") {
+        Object.keys(CONTOH_SISWA).forEach(function (id) { var k = d.getElementById(id); if (k) isiKotak(k, CONTOH_SISWA[id]); });
+      } else {
+        var kirim = d.querySelector('#studio form button[type="submit"]'); if (kirim) kirim.click();
+      }
+    });
+  });
+
   /* ---------- mini game ---------- */
   (function () {
     var ke = 0, skor = 0, kartu = document.getElementById("mg-kartu"), umpan = document.getElementById("mg-umpan");
@@ -909,6 +1033,7 @@ kbd{font:600 12px var(--mono);border:1px solid var(--garis);border-bottom-width:
     if (cetak) frag(kini).forEach(function (f) { f.classList.add("on"); });
     hitungNaik(sl); setTimeout(function () { isiGrafik(sl, true); }, 250);
     if (sl.querySelector("#demo") && !document.getElementById("demo").getAttribute("src")) muatDemo(demoKe);
+    muatSematan(sl);
     kapal.setAttribute("transform", "translate(" + xSlide(kini) + " 4)");
     var bab = +sl.getAttribute("data-bab");
     document.getElementById("judulbab").textContent = NAMA_BAB[bab];
@@ -932,7 +1057,7 @@ kbd{font:600 12px var(--mono);border:1px solid var(--garis);border-bottom-width:
     else if (e.key === "p" || e.key === "P") presenter();
   });
   document.getElementById("vp").addEventListener("click", function (e) {
-    if (e.target.closest("button, a, .interaktif, svg#cabang, #qr")) return;
+    if (e.target.closest("button, a, .interaktif, .sematan, svg#cabang, #qr")) return;
     if (e.clientX > window.innerWidth * 0.3) maju(); else mundur();
   });
   /* geser di ponsel */
@@ -967,6 +1092,8 @@ kbd{font:600 12px var(--mono);border:1px solid var(--garis);border-bottom-width:
 
   var h = parseInt((location.hash || "#1").slice(1), 10);
   tampil(isNaN(h) ? 0 : h - 1);
+  /* Tautan langsung ke slide lain (#nomor) di tab yang sama. */
+  window.addEventListener("hashchange", function () { var n = parseInt(location.hash.slice(1), 10); if (!isNaN(n) && n - 1 !== kini) tampil(n - 1); });
 })();
 </script>
 </body>
